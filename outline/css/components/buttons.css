@@ -1,0 +1,83 @@
+/* 按钮样式 */
+/* 按钮样式 */
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-size: 1.1rem;
+      padding: 0.8rem 1.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      border: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    button i {
+      margin-right: 8px;
+    }
+
+    button.primary {
+      background: var(--primary-color);
+      color: white;
+      box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);
+    }
+
+    button.primary:hover {
+      background: #3a56d4;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(67, 97, 238, 0.3);
+    }
+
+    button.secondary {
+      background: white;
+      color: var(--text-dark);
+      border: 2px solid var(--border-color);
+    }
+
+    button.secondary:hover {
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+    }
+
+    button.danger {
+      background: var(--danger-color);
+      color: white;
+      box-shadow: 0 4px 6px rgba(247, 37, 133, 0.2);
+    }
+
+    button.danger:hover {
+      background: #e5177b;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(247, 37, 133, 0.3);
+    }
+
+    button.warning {
+      background: var(--warning-color);
+      color: white;
+      box-shadow: 0 4px 6px rgba(248, 150, 30, 0.2);
+    }
+
+    button.warning:hover {
+      background: #e07e0f;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(248, 150, 30, 0.3);
+    }
+
+    .dark-mode button.secondary {
+      background: var(--dark-card-bg);
+      color: var(--dark-text-light);
+      border: 2px solid var(--dark-border-color);
+    }
+
+    /* 模式切换 */
+/* 按钮样式结束 */

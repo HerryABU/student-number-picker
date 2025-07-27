@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>智能学号抽取系统V5.3.2</title>
+<link href="vendor/css/all.min.css" rel="stylesheet"/>
+<link href="css/styles.css" rel="stylesheet"/>
+<!-- 基础样式 -->
+<!-- 组件样式 -->
+<!-- 主题样式 -->
+<!-- 功能模块样式 -->
+<!-- 核心CSS -->
+<!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/> 核心CSS -->
+<link href="vendor/css/all.min.css" rel="stylesheet"/>
+<link href="css/styles.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="container" id="app">
+<!-- 暗黑模式切换按钮 -->
+<button @click="toggleDarkMode" class="theme-toggle">
+<i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
+</button>
+<transition mode="out-in" name="fade">
+<div key="setup" v-if="isSetupPage">
+<h1><i class="fas fa-users-gear"></i> 学号抽取设置</h1>
+<!-- 操作模式选择 -->
+<div class="mode-switch">
+<div :class="{ 'active': operationMode === 'range' }" @click="operationMode = 'range'" class="mode-button">
+<div class="mode-icon"><i class="fas fa-sort-numeric-up"></i></div>
+<div class="mode-name">学号范围模式</div>
+</div>
+<div :class="{ 'active': operationMode === 'list' }" @click="operationMode = 'list'" class="mode-button">
+<div class="mode-icon"><i class="fas fa-list-ol"></i></div>
+<div class="mode-name">名单导入模式</div>
+</div>
+</div>
+<!-- 学号范围模式 -->
+<div v-if="operationMode === 'range'">
+<div class="form-group">
+<label for="start">起始学号：</label>
+<input id="start" min="1" type="number" v-model.number="start"/>
+</div>
+<div class="form-group">
+<label for="end">结束学号：</label>
+<input :min="start" id="end" type="number" v-model.number="end"/>
+</div>
+</div>
+<!-- 名单导入模式 -->
+<div v-if="operationMode === 'list'">
+<div class="student-list-panel">
+<h3><i class="fas fa-users"></i> 学生名单管理</h3>
+<!-- 多名单组选择 -->
+<div class="group-selector">
+<label>名单分组：</label>
+<div class="group-tabs">
+<div :class="{ 'active': currentGroup === group.name }" :key="index" @click="switchGroup(group.name)" class="group-tab" v-for="(group, index) in studentGroups">
+                  {{ group.name }} ({{ group.students.length || 0 }})
+                </div>
+<button @click="addNewGroup" class="primary" style="padding: 0.5rem 1rem;">
+<i class="fas fa-plus"></i> 新建组
+                </button>
+</div>
+</div>
+<!-- 文件上传区域 -->
+<div @click="selectFile" class="file-upload">
+<input @change="handleFileUpload" accept=".xlsx,.xls" id="fileInput" type="file"/>
+<div class="upload-icon"><i class="fas fa-file-excel"></i></div>
+<h3>点击上传Excel文件</h3>
+<p>支持 .xlsx 和 .xls 格式，A列学号，B列姓名</p>
+</div>
+<!-- 学生名单表格 -->
+<div v-if="currentStudents.length &gt; 0">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+<p>共 {{ currentStudents.length }} 名学生</p>
+<button @click="clearCurrentGroup" class="danger" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+<i class="fas fa-trash"></i> 清空当前组
+                </button>
+</div>
+<table class="student-list">
+<thead>
+<tr>
+<th style="width: 40%;">学号</th>
+<th style="width: 40%;">姓名</th>
+<th style="width: 20%;">操作</th>
+</tr>
+</thead>
+<tbody>
+<tr :key="index" v-for="(student, index) in currentStudents">
+<td>{{ student.student_id }}</td>
+<td>{{ student.name }}</td>
+<td>
+<button @click="deleteStudent(index)" class="danger" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">
+<i class="fas fa-times"></i>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="empty-state" v-else="">
+<p>暂无学生数据，请上传Excel文件</p>
+</div>
+</div>
+</div>
+<div class="form-group">
+<label for="mode">抽取模式：</label>
+<select id="mode" v-model="mode">
+<option value="d">单次抽取模式</option>
+<option value="s">快速抽取模式</option>
+</select>
+</div>
+<div class="form-group">
+<label></label>
+<div style="display: flex; align-items: center;">
+<input id="noRepeat" style="margin-right: 0.5rem;" type="checkbox" v-model="noRepeat"/>
+<label for="noRepeat" style="margin: 0;">不重复抽取</label>
+</div>
+</div>
+<div class="button-group">
+<button :disabled="operationMode === 'list' &amp;&amp; currentStudents.length === 0" @click="validateAndNavigate" class="primary">
+<i class="fas fa-play"></i>
+<span>开始抽取</span>
+</button>
+</div>
+<!-- 高级设置 -->
+<div class="advanced-settings">
+<button @click="showAdvanced = !showAdvanced" class="toggle-advanced">
+<i :class="['fas', showAdvanced ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
+            {{ showAdvanced ? '隐藏高级设置' : '显示高级设置' }}
+          </button>
+<div :class="{ 'show': showAdvanced }" class="settings-panel">
+<h3><i class="fas fa-percentage"></i> 概率设置</h3>
+<p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 1rem;">
+              设置不同学号范围的抽取概率权重（默认均匀分布）
+            </p>
+<div :key="index" class="range-control" v-for="(range, index) in probabilityRanges">
+<input :max="range.end" :min="start" placeholder="起始" type="number" v-model.number="range.start"/>
+<span>至</span>
+<input :max="end" :min="range.start" placeholder="结束" type="number" v-model.number="range.end"/>
+<span>权重</span>
+<input min="1" placeholder="权重" type="number" v-model.number="range.weight"/>
+<span>%</span>
+<button @click="removeRange(index)" class="danger" style="padding: 0.5rem;">
+<i class="fas fa-trash"></i>
+</button>
+</div>
+<button @click="addRange" class="primary" style="margin-bottom: 1.5rem;">
+<i class="fas fa-plus"></i> 添加范围
+            </button>
+<h3><i class="fas fa-font"></i> 字体设置</h3>
+<div class="form-group">
+<label>全局字体：</label>
+<select v-model="selectedGlobalFont">
+<option value="Inter">Inter</option>
+<option value="Arial">Arial</option>
+<option value="KaiTi">楷体</option>
+<option value="XingKai">行楷</option>
+<option value="LiShu">隶书</option>
+<option value="WeiShu">魏书</option></select>
+</div>
+<div class="form-group">
+<label>数字字体：</label>
+<select v-model="selectedNumberFont">
+<option value="Arial">Arial</option>
+<option value="KaiTi">楷体</option>
+<option value="XingKai">行楷</option>
+<option value="LiShu">隶书</option>
+</select>
+</div>
+<div class="form-group">
+<label>姓名字号：{{ nameSize }}rem</label>
+<input max="15" min="2" step="0.1" type="range" v-model.number="nameSize"/>
+</div>
+<div class="form-group">
+<label>学号大小：{{ numberSize }}pt</label>
+<input max="120" min="60" step="5" type="range" v-model.number="numberSize"/>
+</div>
+<button @click="applyFontSettings" class="primary" style="width: 100%;">
+<i class="fas fa-check"></i> 应用字体设置
+            </button>
+</div>
+</div>
+</div>
+<div key="main" v-else="">
+<h1><i class="fas fa-random"></i> 学号抽取结果</h1>
+<div class="display-area">
+<div class="student-name" v-if="operationMode === 'list' &amp;&amp; currentStudent.name">{{ currentStudent.name }}</div>
+<div class="student-id">{{ currentNumber }}</div>
+<!-- 新增：多抽结果显示区域 -->
+<div class="multi-draw-display" v-if="multiDrawResults.length &gt; 0">
+<div class="multi-draw-list">
+<div :key="index" class="multi-draw-item" v-for="(item, index) in multiDrawResults">
+<div class="multi-draw-item-id">{{ item.student_id }}</div>
+<div class="multi-draw-item-name" v-if="operationMode === 'list' &amp;&amp; item.name">{{ item.name }}</div>
+</div>
+</div>
+</div>
+</div>
+<div class="button-group">
+<button @click="drawNumber" class="primary" v-if="mode === 'd'">
+<i class="fas fa-dice"></i>
+<span>抽取学号</span>
+</button>
+<button :class="{ 'loading-button': isContinuous }" @click="toggleContinuous" class="primary" v-if="mode === 's'">
+<i :class="['fas', isContinuous ? 'fa-stop' : 'fa-play']"></i>
+<span>{{ isContinuous ? '停止抽取' : '开始抽取' }}</span>
+</button>
+<button @click="multiDraw" class="primary">
+<i class="fas fa-bolt"></i>
+<span>连抽{{ multiDrawCount }}次</span>
+</button>
+<button @click="showBatchSettings = !showBatchSettings" class="warning">
+<i class="fas fa-users"></i>
+<span>批量抽取</span>
+</button>
+<button @click="goBack" class="secondary">
+<i class="fas fa-arrow-left"></i>
+<span>返回设置</span>
+</button>
+<button @click="resetUsedNumbers" class="danger" v-if="usedNumbers.length &gt; 0">
+<i class="fas fa-sync-alt"></i>
+<span>重置记录</span>
+</button>
+</div>
+<!-- 批量抽取设置面板 -->
+<transition name="fade">
+<div class="batch-panel show" v-if="showBatchSettings">
+<h3><i class="fas fa-users"></i> 批量抽取设置</h3>
+<div class="form-group">
+<label for="customMultiCount">连抽次数：</label>
+<input id="customMultiCount" max="50" min="1" type="number" v-model.number="multiDrawCount"/>
+</div>
+<div class="form-group">
+<label for="batchSize">抽取人数：</label>
+<input :max="getTotalNumbers() - usedNumbers.length" id="batchSize" min="1" type="number" v-model.number="batchSize"/>
+</div>
+<button @click="drawBatchNumbers" class="primary">
+<i class="fas fa-user-friends"></i>
+<span>抽取{{batchSize}}人</span>
+</button>
+</div>
+</transition>
+<div class="history" v-if="usedNumbers.length &gt; 0">
+<div class="history-title">
+<span>已抽取记录 ({{ usedNumbers.length }}/{{ getTotalNumbers() }})</span>
+<button @click="clearHistory" style="background:none;border:none;color:var(--text-light);font-size:0.8rem;">
+<i class="fas fa-trash"></i> 清除
+            </button>
+</div>
+<div class="history-items">
+<span :class="{ 'latest': index === usedNumbers.length - 1 }" :key="index" class="history-item" v-for="(item, index) in usedNumbers">
+<span class="student-id">{{ item.student_id }}</span>
+<span class="student-name" v-if="operationMode === 'list' &amp;&amp; item.name">{{ item.name }}</span>
+</span>
+</div>
+</div>
+</div>
+</transition>
+<!-- 多抽效果展示 -->
+<div class="multi-draw-effect" v-if="showMultiEffect">
+<div class="effect-number">{{ multiEffectNumber }}</div>
+<div class="effect-name" v-if="operationMode === 'list' &amp;&amp; multiEffectName">{{ multiEffectName }}</div>
+<div class="effect-list" v-if="multiDrawResults.length &gt; 0">
+<div :key="index" class="effect-item" v-for="(item, index) in multiDrawResults">
+<div class="effect-item-id">{{ item.student_id }}</div>
+<div class="effect-item-name" v-if="operationMode === 'list' &amp;&amp; item.name">{{ item.name }}</div>
+</div>
+</div>
+</div>
+<!-- 庆祝动画 -->
+<div class="celebration" v-if="showCelebration">
+<div :key="n" :style="{
+             left: Math.random() * 100 + '%',
+             background: getRandomColor(),
+             animation: `confetti-fall ${Math.random() * 3 + 2}s linear forwards`,
+             animationDelay: Math.random() * 0.5 + 's',
+             width: Math.random() * 10 + 5 + 'px',
+             height: Math.random() * 10 + 5 + 'px'
+           }" class="confetti" v-for="n in 50">
+</div>
+<div class="message">
+<i class="fas fa-trophy"></i> {{celebrationMessage}}
+      </div>
+</div>
+<!-- 通知提示 -->
+<div :class="{ 'show': notification.show }" class="notification">
+<div class="notification-icon"><i :class="notification.icon"></i></div>
+<div class="notification-content">{{ notification.message }}</div>
+</div>
+</div>
+<!-- 核心功能 -->
+<!-- 工具函数 -->
+<!-- 组件逻辑 -->
+<!-- 功能模块 -->
+<!-- 核心JS库 -->
+<script src="vendor/js/vue.global.min.js"></script>
+<script src="vendor/js/xlsx.full.min.js"></script>
+<!-- 应用脚本 -->
+<script src="js/app.js"></script>
+</body>
+</html>

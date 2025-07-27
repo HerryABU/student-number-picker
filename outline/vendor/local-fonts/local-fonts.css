@@ -1,0 +1,55 @@
+
+@font-face {
+    font-family: 'WeiShu';
+    src: url('weishu/weishu.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+/* 本地字体引用样式 */
+@font-face {
+    font-family: 'KaiTi';
+    src: url('kaishu/kaiti.eot');
+    src: url('kaishu/kaiti.eot?#iefix') format('embedded-opentype'),
+         url('kaishu/kaiti.woff2') format('woff2'),
+         url('kaishu/kaiti.woff') format('woff'),
+         url('kaishu/kaiti.ttf') format('truetype'),
+         url('kaishu/kaiti.svg#KaiTi') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'XingKai';
+    src: url('xingshu/xingshu.eot');
+    src: url('xingshu/xingshu.eot?#iefix') format('embedded-opentype'),
+         url('xingshu/xingshu.woff2') format('woff2'),
+         url('xingshu/xingshu.woff') format('woff'),
+         url('xingshu/xingshu.ttf') format('truetype'),
+         url('xingshu/xingshu.svg#XingKai') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'LiShu';
+    src: url('lishu/lishu.eot');
+    src: url('lishu/lishu.eot?#iefix') format('embedded-opentype'),
+         url('lishu/lishu.woff2') format('woff2'),
+         url('lishu/lishu.woff') format('woff'),
+         url('lishu/lishu.ttf') format('truetype'),
+         url('lishu/lishu.svg#LiShu') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('inter/inter.eot');
+    src: url('inter/inter.eot?#iefix') format('embedded-opentype'),
+         url('inter/inter.woff2') format('woff2'),
+         url('inter/inter.woff') format('woff'),
+         url('inter/inter.ttf') format('truetype'),
+         url('inter/inter.svg#Inter') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}

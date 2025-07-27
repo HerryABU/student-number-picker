@@ -1,0 +1,223 @@
+/* 暗色主题样式 */
+/* 暗黑模式样式 */
+    .dark-mode {
+      --primary-color: var(--dark-primary-color);
+      --success-color: var(--dark-success-color);
+      --danger-color: var(--dark-danger-color);
+      --warning-color: var(--dark-warning-color);
+      --bg-color: var(--dark-bg-color);
+      --card-bg: var(--dark-card-bg);
+      --card-shadow: var(--dark-card-shadow);
+      --border-color: var(--dark-border-color);
+      --text-dark: var(--dark-text-dark);
+      --text-light: var(--dark-text-light);
+      --text-muted: var(--dark-text-muted);
+    }
+
+    /* 修复深色模式背景 */
+    body {
+      background: var(--bg-color);
+      transition: background 0.3s ease;
+    }
+
+    .dark-mode body {
+      background: var(--dark-bg-color);
+    }
+
+    .dark-mode .display-area,
+    .dark-mode .multi-draw-display {
+      background: #1e293b;
+      box-shadow: 
+        inset 0 -8px 12px rgba(0,0,0,0.3),
+        inset 0 8px 12px rgba(255,255,255,0.05),
+        0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .dark-mode .student-name,
+    .dark-mode .student-id,
+    .dark-mode .multi-draw-item-name {
+      color: var(--dark-text-light);
+    }
+
+    .dark-mode .history {
+      background: #1e293b;
+    }
+
+    .dark-mode .history-item {
+      background: #2d3748;
+      color: var(--dark-text-light);
+    }
+
+    .dark-mode .settings-panel,
+    .dark-mode .student-list-panel,
+    .dark-mode .batch-panel {
+      background: #1e293b;
+    }
+
+    .dark-mode input[type="number"],
+    .dark-mode select {
+      background: linear-gradient(#2d3748, #2d3748) padding-box, 
+                  linear-gradient(45deg, #ff7eb3, #65d9ff, #c7f464, #ff7eb3) border-box;
+      color: var(--dark-text-light);
+    }
+
+    /* 基础样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--global-font);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text-dark);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .container {
+      background: var(--card-bg);
+      padding: 2.5rem 3rem;
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      width: min(90%, 1000px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin: 2rem 0;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(90deg, #4361ee, #4cc9f0, #f72585, #4361ee);
+      background-size: 300% 100%;
+      animation: gradientFlow 3s linear infinite;
+    }
+
+    .dark-mode .container::before {
+      background: linear-gradient(90deg, #5e72e4, #2dce89, #f5365c, #5e72e4);
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    h1 {
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 1rem;
+      font-size: 1.8rem;
+      margin: 1rem 0 2rem;
+      color: var(--text-dark);
+      transition: color 0.3s ease;
+    }
+
+    h1::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: var(--primary-color);
+      border-radius: 2px;
+      transition: background 0.3s ease;
+    }
+
+    /* 主显示区域 */
+    .display-area {
+      margin: 30px 0;
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 
+        inset 0 -8px 12px rgba(0,0,0,0.1),
+        inset 0 8px 12px rgba(255,255,255,0.7),
+        0 4px 12px rgba(0,0,0,0.1);
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .student-name {
+      font-size: var(--name-size);
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+      font-family: var(--global-font);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    .student-id {
+      font-size: var(--number-size);
+      font-weight: bold;
+      color: #2c3e50;
+      line-height: 1;
+      font-family: var(--number-font);
+      transition: all 0.3s ease;
+    }
+
+    /* 新增：多抽结果显示区域 */
+    .multi-draw-display {
+      margin-top: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+      width: 100%;
+    }
+
+    .multi-draw-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+      padding: 10px;
+    }
+
+    .multi-draw-item {
+      background: rgba(67, 97, 238, 0.1);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .multi-draw-item:hover {
+      transform: translateY(-2px);
+    }
+
+    .multi-draw-item-id {
+      font-weight: bold;
+      color: var(--primary-color);
+      font-size: 1.2rem;
+    }
+
+    .multi-draw-item-name {
+      color: var(--text-dark);
+      font-size: var(--name-size);
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    /* 暗黑模式多抽项 */
+    .dark-mode .multi-draw-item {
+      background: rgba(94, 114, 228, 0.2);
+    }
+
+    /* 暗黑模式切换按钮 */
+/* 暗色主题样式结束 */
