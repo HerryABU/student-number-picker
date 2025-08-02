@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>智能学号抽取系统V5.2.0</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      /* 浅色主题变量 */
+      --primary-color: #4361ee;
+      --success-color: #4cc9f0;
+      --danger-color: #f72585;
+      --warning-color: #f8961e;
+      --bg-color: #f8f9fa;
+      --card-bg: white;
+      --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --border-color: #e9ecef;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --text-muted: #6c757d;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      
+      /* 暗色主题变量 */
+      --dark-primary-color: #5e72e4;
+      --dark-success-color: #2dce89;
+      --dark-danger-color: #f5365c;
+      --dark-warning-color: #fb6340;
+      --dark-bg-color: #1a1a2e;
+      --dark-card-bg: #16213e;
+      --dark-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+      --dark-border-color: #2d3748;
+      --dark-text-dark: #f8f9fa;
+      --dark-text-light: #e2e8f0;
+      --dark-text-muted: #a0aec0;
+
+      /* 字体变量 - 汉字明显大于数字 */
+      --global-font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --number-font: 'Arial';
+      --name-size: 5rem;    /* 汉字超大号 */
+      --number-size: 80pt;  /* 数字小号 */
+    }
+
+    /* 暗黑模式样式 */
+    .dark-mode {
+      --primary-color: var(--dark-primary-color);
+      --success-color: var(--dark-success-color);
+      --danger-color: var(--dark-danger-color);
+      --warning-color: var(--dark-warning-color);
+      --bg-color: var(--dark-bg-color);
+      --card-bg: var(--dark-card-bg);
+      --card-shadow: var(--dark-card-shadow);
+      --border-color: var(--dark-border-color);
+      --text-dark: var(--dark-text-dark);
+      --text-light: var(--dark-text-light);
+      --text-muted: var(--dark-text-muted);
+    }
+
+    /* 修复深色模式背景 */
+    body {
+      background: var(--bg-color);
+      transition: background 0.3s ease;
+    }
+
+    .dark-mode body {
+      background: var(--dark-bg-color);
+    }
+
+    .dark-mode .display-area {
+      background: #1e293b;
+      box-shadow: 
+        inset 0 -8px 12px rgba(0,0,0,0.3),
+        inset 0 8px 12px rgba(255,255,255,0.05),
+        0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .dark-mode .student-name,
+    .dark-mode .student-id {
+      color: var(--dark-text-light);
+    }
+
+    .dark-mode .history {
+      background: #1e293b;
+    }
+
+    .dark-mode .history-item {
+      background: #2d3748;
+      color: var(--dark-text-light);
+    }
+
+    .dark-mode .settings-panel,
+    .dark-mode .student-list-panel {
+      background: #1e293b;
+    }
+
+    .dark-mode input[type="number"],
+    .dark-mode select {
+      background: linear-gradient(#2d3748, #2d3748) padding-box, 
+                  linear-gradient(45deg, #ff7eb3, #65d9ff, #c7f464, #ff7eb3) border-box;
+      color: var(--dark-text-light);
+    }
+
+    /* 基础样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--global-font);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text-dark);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .container {
+      background: var(--card-bg);
+      padding: 2.5rem 3rem;
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      width: min(90%, 1000px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin: 2rem 0;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(90deg, #4361ee, #4cc9f0, #f72585, #4361ee);
+      background-size: 300% 100%;
+      animation: gradientFlow 3s linear infinite;
+    }
+
+    .dark-mode .container::before {
+      background: linear-gradient(90deg, #5e72e4, #2dce89, #f5365c, #5e72e4);
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    h1 {
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 1rem;
+      font-size: 1.8rem;
+      margin: 1rem 0 2rem;
+      color: var(--text-dark);
+      transition: color 0.3s ease;
+    }
+
+    h1::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: var(--primary-color);
+      border-radius: 2px;
+      transition: background 0.3s ease;
+    }
+
+    /* 主显示区域 - 姓名在上(超大)，学号在下(小) */
+    .display-area {
+      margin: 30px 0;
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 
+        inset 0 -8px 12px rgba(0,0,0,0.1),
+        inset 0 8px 12px rgba(255,255,255,0.7),
+        0 4px 12px rgba(0,0,0,0.1);
+      min-height: 320px; /* 增加高度确保显示完整 */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .student-name {
+      font-size: var(--name-size);
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+      font-family: var(--global-font);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    .student-id {
+      font-size: var(--number-size);
+      font-weight: bold;
+      color: #2c3e50;
+      line-height: 1;
+      font-family: var(--number-font);
+      transition: all 0.3s ease;
+    }
+
+    /* 暗黑模式切换按钮 */
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.5rem;
+      color: var(--text-dark);
+      transition: color 0.3s ease;
+      z-index: 10;
+    }
+
+    .dark-mode .theme-toggle {
+      color: var(--dark-text-light);
+    }
+
+    /* 按钮样式 */
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-size: 1.1rem;
+      padding: 0.8rem 1.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      border: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    button i {
+      margin-right: 8px;
+    }
+
+    button.primary {
+      background: var(--primary-color);
+      color: white;
+      box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);
+    }
+
+    button.primary:hover {
+      background: #3a56d4;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(67, 97, 238, 0.3);
+    }
+
+    button.secondary {
+      background: white;
+      color: var(--text-dark);
+      border: 2px solid var(--border-color);
+    }
+
+    button.secondary:hover {
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+    }
+
+    button.danger {
+      background: var(--danger-color);
+      color: white;
+      box-shadow: 0 4px 6px rgba(247, 37, 133, 0.2);
+    }
+
+    button.danger:hover {
+      background: #e5177b;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(247, 37, 133, 0.3);
+    }
+
+    .dark-mode button.secondary {
+      background: var(--dark-card-bg);
+      color: var(--dark-text-light);
+      border: 2px solid var(--dark-border-color);
+    }
+
+    /* 模式切换 */
+    .mode-switch {
+      display: flex;
+      justify-content: center;
+      margin: 2rem 0;
+      gap: 1rem;
+    }
+
+    .mode-button {
+      flex: 1;
+      max-width: 200px;
+      padding: 1.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 2px solid var(--border-color);
+      background-color: white;
+    }
+
+    .dark-mode .mode-button {
+      background-color: var(--dark-card-bg);
+      border-color: var(--dark-border-color);
+    }
+
+    .mode-button.active {
+      border-color: var(--primary-color);
+      background-color: rgba(67, 97, 238, 0.1);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark-mode .mode-button.active {
+      background-color: rgba(94, 114, 228, 0.2);
+    }
+
+    .mode-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: var(--primary-color);
+    }
+
+    /* 名单管理面板 */
+    .student-list-panel {
+      padding: 1.5rem;
+      background: #f0f5ff;
+      border-radius: 8px;
+      margin-top: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    /* 文件上传区域 */
+    .file-upload {
+      margin: 1.5rem 0;
+      border: 2px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 2rem;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .file-upload:hover {
+      border-color: var(--primary-color);
+      background-color: rgba(67, 97, 238, 0.05);
+    }
+
+    .file-upload input {
+      display: none;
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      color: var(--text-light);
+      margin-bottom: 1rem;
+      transition: color 0.3s ease;
+    }
+
+    .file-upload:hover .upload-icon {
+      color: var(--primary-color);
+    }
+
+    /* 表格样式 */
+    .student-list {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .dark-mode .student-list {
+      background-color: var(--dark-card-bg);
+    }
+
+    .student-list th, .student-list td {
+      padding: 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .dark-mode .student-list th, .dark-mode .student-list td {
+      border-bottom-color: var(--dark-border-color);
+    }
+
+    .student-list th {
+      background-color: rgba(67, 97, 238, 0.1);
+      font-weight: bold;
+    }
+
+    .dark-mode .student-list th {
+      background-color: rgba(94, 114, 228, 0.2);
+    }
+
+    /* 表单元素 */
+    .form-group {
+      margin: 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    label {
+      min-width: 120px;
+      text-align: right;
+      margin-right: 1rem;
+      color: var(--text-dark);
+      font-size: 1.1rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .dark-mode label {
+      color: var(--dark-text-light);
+    }
+
+    input[type="number"], select {
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      width: 160px;
+      transition: var(--transition);
+      font-size: 1.1rem;
+      color: var(--text-dark);
+      font-weight: 500;
+      outline: none;
+      background: linear-gradient(white, white) padding-box, 
+                  linear-gradient(45deg, #ff7eb3, #65d9ff, #c7f464, #ff7eb3) border-box;
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      background: linear-gradient(white, white) padding-box, 
+                  linear-gradient(45deg, #ff0076, #1eaeff, #28ffbf, #ff0076) border-box;
+      box-shadow: 0 0 15px rgba(255, 0, 118, 0.7), 0 0 25px rgba(30, 174, 255, 0.7);
+      color: #000;
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238d99ae'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 2.5rem;
+    }
+
+    /* 历史记录 */
+    .history {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      max-height: 150px;
+      overflow-y: auto;
+      transition: background 0.3s ease;
+    }
+
+    .history-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-light);
+      transition: color 0.3s ease;
+    }
+
+    .history-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .history-item {
+      background: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .history-item .student-id {
+      font-weight: bold;
+      margin-right: 5px;
+      font-size: 0.9rem;
+    }
+
+    .history-item .student-name {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .history-item.latest {
+      background: var(--success-color);
+      color: white !important;
+      transform: scale(1.1);
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.1); }
+    }
+
+    /* 高级设置 */
+    .advanced-settings {
+      margin-top: 2rem;
+    }
+
+    .toggle-advanced {
+      background: none;
+      border: none;
+      color: var(--primary-color);
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0 auto;
+      padding: 0.5rem;
+      transition: color 0.3s ease;
+    }
+
+    .dark-mode .toggle-advanced {
+      color: var(--dark-primary-color);
+    }
+
+    .settings-panel {
+      padding: 0 1.5rem;
+      background: #f5f7fa;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+      text-align: left;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .settings-panel.show {
+      max-height: 1000px;
+      opacity: 1;
+      padding: 1.5rem;
+    }
+
+    .range-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .range-control input {
+      flex: 1;
+      min-width: 80px;
+    }
+
+    /* 通知和动画 */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      background-color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 9999;
+      transform: translateX(120%);
+      transition: transform 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dark-mode .notification {
+      background-color: var(--dark-card-bg);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    .notification-icon {
+      font-size: 1.5rem;
+    }
+
+    .notification.success {
+      border-left: 4px solid var(--success-color);
+    }
+
+    .notification.error {
+      border-left: 4px solid var(--danger-color);
+    }
+
+    .notification.success .notification-icon {
+      color: var(--success-color);
+    }
+
+    .notification.error .notification-icon {
+      color: var(--danger-color);
+    }
+
+    .celebration {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: var(--danger-color);
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    @keyframes confetti-fall {
+      0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+
+    .message {
+      font-size: 2rem;
+      color: var(--danger-color);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background: white;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      z-index: 101;
+      animation: zoomIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .dark-mode .message {
+      background: var(--dark-card-bg);
+      color: var(--dark-danger-color);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.5rem;
+        width: 95%;
+      }
+      
+      .form-group {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      label {
+        text-align: left;
+        margin-bottom: 0.5rem;
+        min-width: auto;
+      }
+      
+      :root {
+        --name-size: 2.8rem;  /* 响应式调整，保持比例 */
+        --number-size: 60pt;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
+      
+      button {
+        width: 100%;
+      }
+
+      input[type="number"], select {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <!-- 暗黑模式切换按钮 -->
+    <button class="theme-toggle" @click="toggleDarkMode">
+      <i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
+    </button>
+
+    <transition name="fade" mode="out-in">
+      <div v-if="isSetupPage" key="setup">
+        <h1><i class="fas fa-users-gear"></i> 学号抽取设置</h1>
+        
+        <!-- 操作模式选择 -->
+        <div class="mode-switch">
+          <div 
+            class="mode-button" 
+            :class="{ 'active': operationMode === 'range' }"
+            @click="operationMode = 'range'"
+          >
+            <div class="mode-icon"><i class="fas fa-sort-numeric-up"></i></div>
+            <div class="mode-name">学号范围模式</div>
+          </div>
+          <div 
+            class="mode-button" 
+            :class="{ 'active': operationMode === 'list' }"
+            @click="operationMode = 'list'"
+          >
+            <div class="mode-icon"><i class="fas fa-list-ol"></i></div>
+            <div class="mode-name">名单导入模式</div>
+          </div>
+        </div>
+        
+        <!-- 学号范围模式 -->
+        <div v-if="operationMode === 'range'">
+          <div class="form-group">
+            <label for="start">起始学号：</label>
+            <input type="number" v-model.number="start" id="start" min="1" />
+          </div>
+          
+          <div class="form-group">
+            <label for="end">结束学号：</label>
+            <input type="number" v-model.number="end" id="end" :min="start" />
+          </div>
+        </div>
+        
+        <!-- 名单导入模式 -->
+        <div v-if="operationMode === 'list'">
+          <div class="student-list-panel">
+            <h3><i class="fas fa-users"></i> 学生名单管理</h3>
+            
+            <!-- 文件上传区域 -->
+            <div class="file-upload" @click="selectFile">
+              <input type="file" id="fileInput" accept=".xlsx,.xls" @change="handleFileUpload">
+              <div class="upload-icon"><i class="fas fa-file-excel"></i></div>
+              <h3>点击上传Excel文件</h3>
+              <p>支持 .xlsx 和 .xls 格式，A列学号，B列姓名</p>
+            </div>
+            
+            <!-- 学生名单表格 -->
+            <div v-if="students.length > 0">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <p>共 {{ students.length }} 名学生</p>
+                <button class="danger" @click="clearStudents" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                  <i class="fas fa-trash"></i> 清空名单
+                </button>
+              </div>
+              
+              <table class="student-list">
+                <thead>
+                  <tr>
+                    <th style="width: 40%;">学号</th>
+                    <th style="width: 40%;">姓名</th>
+                    <th style="width: 20%;">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(student, index) in students" :key="index">
+                    <td>{{ student.student_id }}</td>
+                    <td>{{ student.name }}</td>
+                    <td>
+                      <button class="delete-student" @click="deleteStudent(index)">
+                        <i class="fas fa-times"></i> 删除
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div v-else class="empty-state">
+              <p>暂无学生数据，请上传Excel文件</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="mode">抽取模式：</label>
+          <select v-model="mode" id="mode">
+            <option value="d">单次抽取模式</option>
+            <option value="s">快速抽取模式</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label></label>
+          <div style="display: flex; align-items: center;">
+            <input type="checkbox" id="noRepeat" v-model="noRepeat" style="margin-right: 0.5rem;">
+            <label for="noRepeat" style="margin: 0;">不重复抽取</label>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button 
+            class="primary" 
+            @click="validateAndNavigate"
+            :disabled="operationMode === 'list' && students.length === 0"
+          >
+            <i class="fas fa-play"></i>
+            <span>开始抽取</span>
+          </button>
+        </div>
+        
+        <!-- 高级设置 -->
+        <div class="advanced-settings">
+          <button class="toggle-advanced" @click="showAdvanced = !showAdvanced">
+            <i :class="['fas', showAdvanced ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
+            {{ showAdvanced ? '隐藏高级设置' : '显示高级设置' }}
+          </button>
+          
+          <div class="settings-panel" :class="{ 'show': showAdvanced }">
+            <h3><i class="fas fa-percentage"></i> 概率设置</h3>
+            <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 1rem;">
+              设置不同学号范围的抽取概率权重（默认均匀分布）
+            </p>
+            
+            <div v-for="(range, index) in probabilityRanges" :key="index" class="range-control">
+              <input v-model.number="range.start" type="number" placeholder="起始" :min="start" :max="range.end">
+              <span>至</span>
+              <input v-model.number="range.end" type="number" placeholder="结束" :min="range.start" :max="end">
+              <span>权重</span>
+              <input v-model.number="range.weight" type="number" placeholder="权重" min="1">
+              <span>%</span>
+              <button class="danger" @click="removeRange(index)" style="padding: 0.5rem;">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+            
+            <button class="primary" @click="addRange" style="margin-bottom: 1.5rem;">
+              <i class="fas fa-plus"></i> 添加范围
+            </button>
+
+            <h3><i class="fas fa-font"></i> 字体设置</h3>
+            <div class="form-group">
+              <label>全局字体：</label>
+              <select v-model="selectedGlobalFont">
+                <option value="Inter">Inter</option>
+                <option value="Arial">Arial</option>
+                <option value="KaiTi">楷体</option>
+                <option value="XingKai">行楷</option>
+                <option value="LiShu">隶书</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>数字字体：</label>
+              <select v-model="selectedNumberFont">
+                <option value="Arial">Arial</option>
+                <option value="KaiTi">楷体</option>
+                <option value="XingKai">行楷</option>
+                <option value="LiShu">隶书</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>姓名字号：{{ nameSize }}rem</label>
+              <input type="range" v-model.number="nameSize" min="2" max="15" step="0.1">
+            </div>
+            
+            <div class="form-group">
+              <label>学号大小：{{ numberSize }}pt</label>
+              <input type="range" v-model.number="numberSize" min="60" max="120" step="5">
+            </div>
+            
+            <button @click="applyFontSettings" class="primary" style="width: 100%;">
+              <i class="fas fa-check"></i> 应用字体设置
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div v-else key="main">
+        <h1><i class="fas fa-random"></i> 学号抽取结果</h1>
+        
+        <div class="display-area">
+          <div class="student-name" v-if="currentStudent.name">{{ currentStudent.name }}</div>
+          <div class="student-id">{{ currentNumber }}</div>
+        </div>
+        
+        <div class="button-group">
+          <button v-if="mode === 'd'" class="primary" @click="drawNumber">
+            <i class="fas fa-dice"></i>
+            <span>抽取学号</span>
+          </button>
+          <button v-if="mode === 's'" 
+                  class="primary"
+                  :class="{ 'loading-button': isContinuous }"
+                  @click="toggleContinuous">
+            <i :class="['fas', isContinuous ? 'fa-stop' : 'fa-play']"></i>
+            <span>{{ isContinuous ? '停止抽取' : '开始抽取' }}</span>
+          </button>
+          <button class="secondary" @click="goBack">
+            <i class="fas fa-arrow-left"></i>
+            <span>返回设置</span>
+          </button>
+          <button v-if="usedNumbers.length > 0" class="danger" @click="resetUsedNumbers">
+            <i class="fas fa-sync-alt"></i>
+            <span>重置记录</span>
+          </button>
+        </div>
+
+        <div v-if="usedNumbers.length > 0" class="history">
+          <div class="history-title">
+            <span>已抽取记录 ({{ usedNumbers.length }}/{{ getTotalNumbers() }})</span>
+          </div>
+          <div class="history-items">
+            <span v-for="(item, index) in usedNumbers" 
+                  :key="index" 
+                  class="history-item"
+                  :class="{ 'latest': index === usedNumbers.length - 1 }">
+              <span class="student-id">{{ item.student_id }}</span>
+              <span class="student-name" v-if="item.name">({{ item.name }})</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </transition>
+    
+    <!-- 庆祝动画 -->
+    <div v-if="showCelebration" class="celebration">
+      <div v-for="n in 50" :key="n" 
+           class="confetti"
+           :style="{
+             left: Math.random() * 100 + '%',
+             background: getRandomColor(),
+             animation: `confetti-fall ${Math.random() * 3 + 2}s linear forwards`,
+             animationDelay: Math.random() * 0.5 + 's',
+             width: Math.random() * 10 + 5 + 'px',
+             height: Math.random() * 10 + 5 + 'px'
+           }">
+      </div>
+      <div class="message">
+        <i class="fas fa-trophy"></i> {{celebrationMessage}}
+      </div>
+    </div>
+  </div>
+  
+  <!-- 通知提示 -->
+  <div class="notification" :class="notification.type" :class="{ 'show': notification.show }">
+    <div class="notification-icon"><i :class="notification.icon"></i></div>
+    <div class="notification-content">{{ notification.message }}</div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    const { createApp, ref, computed, onMounted, watch } = Vue;
+
+    createApp({
+      setup() {
+        // 解析URL参数
+        const parseUrlParams = () => {
+          const params = new URLSearchParams(window.location.search);
+          return {
+            start: params.has('start') ? parseInt(params.get('start')) : 1,
+            end: params.has('end') ? parseInt(params.get('end')) : 40,
+            mode: params.get('mode') || 'd',
+            noRepeat: params.has('noRepeat') ? params.get('noRepeat') === 'true' : true,
+            operationMode: params.get('operationMode') || 'range',
+            globalFont: params.get('globalFont') || 'Inter',
+            numberFont: params.get('numberFont') || 'Arial',
+            nameSize: params.has('nameSize') ? parseFloat(params.get('nameSize')) : 15,
+            numberSize: params.has('numberSize') ? parseInt(params.get('numberSize')) : 80
+          };
+        };
+
+        const urlParams = parseUrlParams();
+        
+        // 操作模式
+        const operationMode = ref(urlParams.operationMode); // 'range' or 'list'
+        
+        // 基本设置
+        const start = ref(urlParams.start);
+        const end = ref(urlParams.end);
+        const mode = ref(urlParams.mode);
+        const noRepeat = ref(urlParams.noRepeat);
+        const currentNumber = ref('—');
+        const currentStudent = ref({ student_id: '', name: '' });
+        const isSetupPage = ref(true);
+        const usedNumbers = ref([]);
+        const students = ref([]);
+        const isContinuous = ref(false);
+        const animationFrameId = ref(null);
+        const showCelebration = ref(false);
+        const celebrationMessage = ref('所有学号已抽取完成！');
+        const showAdvanced = ref(false);
+        const probabilityRanges = ref([]);
+        const darkMode = ref(false);
+        
+        // 字体设置
+        const selectedGlobalFont = ref(urlParams.globalFont);
+        const selectedNumberFont = ref(urlParams.numberFont);
+        const nameSize = ref(urlParams.nameSize);
+        const numberSize = ref(urlParams.numberSize);
+        
+        // 通知提示
+        const notification = ref({
+          show: false,
+          message: '',
+          type: '',
+          icon: ''
+        });
+        
+        // 更新URL参数
+        const updateUrlParams = () => {
+          const params = new URLSearchParams();
+          params.set('start', start.value);
+          params.set('end', end.value);
+          params.set('mode', mode.value);
+          params.set('noRepeat', noRepeat.value);
+          params.set('operationMode', operationMode.value);
+          params.set('globalFont', selectedGlobalFont.value);
+          params.set('numberFont', selectedNumberFont.value);
+          params.set('nameSize', nameSize.value);
+          params.set('numberSize', numberSize.value);
+          
+          const newUrl = window.location.pathname + '?' + params.toString();
+          window.history.replaceState(null , '', newUrl);
+        };
+        
+        // 显示通知
+        const showNotification = (message, type = 'success') => {
+          notification.value.message = message;
+          notification.value.type = type;
+          notification.value.icon = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+          notification.value.show = true;
+          
+          setTimeout(() => {
+            notification.value.show = false;
+          }, 3000);
+        };
+
+        // 切换暗黑模式
+        const toggleDarkMode = () => {
+          darkMode.value = !darkMode.value;
+          document.body.classList.toggle('dark-mode', darkMode.value);
+          localStorage.setItem('darkMode', darkMode.value);
+        };
+
+        // 获取总人数
+        const getTotalNumbers = () => {
+          if (operationMode.value === 'list') {
+            return students.value.length;
+          } else {
+            return end.value - start.value + 1;
+          }
+        };
+
+        // 获取所有可选学号
+        const getAllNumbers = () => {
+          if (operationMode.value === 'list') {
+            return [...students.value];
+          } else {
+            const numbers = [];
+            for (let i = start.value; i <= end.value; i++) {
+              numbers.push({ student_id: i, name: '' });
+            }
+            return numbers;
+          }
+        };
+
+        // 生成随机颜色
+        const getRandomColor = () => {
+          const colors = ['#4361ee', '#4cc9f0', '#f72585', '#f8961e', '#7209b7', '#3a86ff'];
+          return colors[Math.floor(Math.random() * colors.length)];
+        };
+
+        // 权重随机抽取
+        const getWeightedRandomNumber = () => {
+          const available = getAllNumbers().filter(item => 
+            !usedNumbers.value.some(used => used.student_id === item.student_id)
+          );
+          
+          if (available.length === 0) return null;
+          
+          if (probabilityRanges.value.length === 0 || operationMode.value === 'list') {
+            const index = Math.floor(Math.random() * available.length);
+            return available[index];
+          }
+          
+          let pool = [];
+          let totalWeight = 0;
+          
+          probabilityRanges.value.forEach(range => {
+            const nums = getAllNumbers()
+              .filter(n => n.student_id >= range.start && n.student_id <= range.end)
+              .filter(n => !usedNumbers.value.some(u => u.student_id === n.student_id));
+            
+            nums.forEach(n => {
+              pool.push({ num: n, weight: range.weight });
+              totalWeight += range.weight;
+            });
+          });
+          
+          if (pool.length === 0) return null;
+          
+          let random = Math.random() * totalWeight;
+          
+          for (const item of pool) {
+            if (random < item.weight) return item.num;
+            random -= item.weight;
+          }
+          
+          return pool[0].num;
+        };
+
+        // 抽取学号
+        const drawNumber = () => {
+          const available = getAllNumbers().filter(item => 
+            !usedNumbers.value.some(used => used.student_id === item.student_id)
+          );
+          
+          if (available.length === 0) {
+            triggerCelebration();
+            return;
+          }
+          
+          const result = getWeightedRandomNumber();
+          
+          if (result !== null) {
+            if (noRepeat.value) {
+              usedNumbers.value.push(result);
+            }
+            
+            currentNumber.value = result.student_id;
+            currentStudent.value = result;
+            
+            if (usedNumbers.length === getTotalNumbers()) {
+              triggerCelebration();
+            }
+          } else {
+            triggerCelebration();
+          }
+        };
+
+        // 快速抽取模式
+        const toggleContinuous = () => {
+          if (isContinuous.value) {
+            cancelAnimationFrame(animationFrameId.value);
+            isContinuous.value = false;
+            
+            if (noRepeat.value && currentNumber.value !== '—') {
+              const exists = usedNumbers.value.some(
+                item => item.student_id === currentNumber.value
+              );
+              
+              if (!exists) {
+                usedNumbers.value.push(currentStudent.value);
+                
+                if (usedNumbers.length === getTotalNumbers()) {
+                  triggerCelebration();
+                }
+              }
+            }
+          } else {
+            isContinuous.value = true;
+            const animate = () => {
+              const available = getAllNumbers().filter(item => 
+                !usedNumbers.value.some(used => used.student_id === item.student_id)
+              );
+              
+              if (available.length === 0) {
+                cancelAnimationFrame(animationFrameId.value);
+                isContinuous.value = false;
+                triggerCelebration();
+                return;
+              }
+              
+              const result = getWeightedRandomNumber();
+              currentNumber.value = result.student_id;
+              currentStudent.value = result;
+              
+              animationFrameId.value = requestAnimationFrame(animate);
+            };
+            
+            animate();
+          }
+        };
+
+        // 触发庆祝动画
+        const triggerCelebration = (message = '所有学号已抽取完成！') => {
+          celebrationMessage.value = message;
+          showCelebration.value = true;
+          
+          setTimeout(() => {
+            showCelebration.value = false;
+          }, 3000);
+        };
+
+        // 验证并进入抽取页面
+        const validateAndNavigate = () => {
+          if (operationMode.value === 'range') {
+            if (start.value > end.value) {
+              showNotification('错误：起始学号不能大于结束学号', 'error');
+              return;
+            }
+            if (start.value < 1 || end.value < 1) {
+              showNotification('错误：学号不能小于1', 'error');
+              return;
+            }
+            
+            probabilityRanges.value.forEach(range => {
+              if (range.start > range.end) {
+                showNotification(`错误：范围 ${range.start}-${range.end} 起始值不能大于结束值`, 'error');
+                return;
+              }
+              if (range.start < start.value || range.end > end.value) {
+                showNotification(`错误：范围 ${range.start}-${range.end} 超出学号范围`, 'error');
+                return;
+              }
+              if (range.weight <= 0) {
+                showNotification(`错误：范围 ${range.start}-${range.end} 权重必须大于0`, 'error');
+                return;
+              }
+            });
+          } else if (operationMode.value === 'list') {
+            if (students.value.length === 0) {
+              showNotification('错误：请先导入学生名单', 'error');
+              return;
+            }
+          }
+          
+          isSetupPage.value = false;
+          usedNumbers.value = [];
+          currentNumber.value = '—';
+          currentStudent.value = { student_id: '', name: '' };
+          updateUrlParams();
+        };
+
+        // 返回设置页面
+        const goBack = () => {
+          if (isContinuous.value) {
+            cancelAnimationFrame(animationFrameId.value);
+            isContinuous.value = false;
+          }
+          isSetupPage.value = true;
+          updateUrlParams();
+        };
+
+        // 重置抽取记录
+        const resetUsedNumbers = () => {
+          if (confirm('确定要重置已抽取记录吗？')) {
+            usedNumbers.value = [];
+            currentNumber.value = '—';
+            currentStudent.value = { student_id: '', name: '' };
+            showNotification('已重置抽取记录');
+          }
+        };
+        
+        // 文件上传处理
+        const selectFile = () => {
+          document.getElementById('fileInput').click();
+        };
+        
+        const handleFileUpload = (event) => {
+          const file = event.target.files[0];
+          if (!file) return;
+          
+          const reader = new FileReader();
+          
+          reader.onload = function(e) {
+            try {
+              const data = new Uint8Array(e.target.result);
+              const workbook = XLSX.read(data, { type: 'array' });
+              const firstSheetName = workbook.SheetNames[0];
+              const worksheet = workbook.Sheets[firstSheetName];
+              const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+              
+              const newStudents = [];
+              for (let i = 0; i < jsonData.length; i++) {
+                const row = jsonData[i];
+                if (!row || row.length === 0) continue;
+                
+                const studentId = String(row[0]).trim();
+                const name = row.length > 1 ? String(row[1]).trim() : '';
+                
+                if (studentId) {
+                  newStudents.push({ student_id: studentId, name });
+                }
+              }
+              
+              if (newStudents.length === 0) {
+                showNotification('未找到有效的学生数据', 'error');
+                return;
+              }
+              
+              const existingIds = students.value.map(s => s.student_id);
+              newStudents.forEach(student => {
+                if (!existingIds.includes(student.student_id)) {
+                  students.value.push(student);
+                } else {
+                  const index = students.value.findIndex(s => s.student_id === student.student_id);
+                  if (index >= 0 && student.name) {
+                    students.value[index].name = student.name;
+                  }
+                }
+              });
+              
+              localStorage.setItem('studentList', JSON.stringify(students.value));
+              showNotification(`成功导入 ${newStudents.length} 条学生记录`);
+              event.target.value = '';
+            } catch (error) {
+              showNotification(`解析Excel文件失败: ${error.message}`, 'error');
+            }
+          };
+          
+          reader.readAsArrayBuffer(file);
+        };
+        
+        // 添加概率范围
+        const addRange = () => {
+          probabilityRanges.value.push({ 
+            start: start.value, 
+            end: end.value, 
+            weight: 50 
+          });
+        };
+        
+        // 删除概率范围
+        const removeRange = (index) => {
+          probabilityRanges.value.splice(index, 1);
+        };
+        
+        // 应用字体设置
+        const applyFontSettings = () => {
+          document.documentElement.style.setProperty('--global-font', selectedGlobalFont.value);
+          document.documentElement.style.setProperty('--number-font', selectedNumberFont.value);
+          document.documentElement.style.setProperty('--name-size', nameSize.value + 'rem');
+          document.documentElement.style.setProperty('--number-size', numberSize.value + 'pt');
+          showNotification('字体设置已应用');
+          updateUrlParams();
+        };
+        
+        // 删除学生
+        const deleteStudent = (index) => {
+          students.value.splice(index, 1);
+          localStorage.setItem('studentList', JSON.stringify(students.value));
+          showNotification('学生已删除');
+        };
+        
+        // 清空学生名单
+        const clearStudents = () => {
+          if (confirm('确定要清空所有学生名单吗？')) {
+            students.value = [];
+            localStorage.removeItem('studentList');
+            showNotification('学生名单已清空');
+          }
+        };
+
+        // 调整概率范围
+        const adjustProbabilityRanges = () => {
+          probabilityRanges.value.forEach(range => {
+            if (range.start < start.value) range.start = start.value;
+            if (range.end > end.value) range.end = end.value;
+            if (range.start > range.end) range.start = range.end;
+          });
+        };
+
+        onMounted(() => {
+          try {
+            const savedStudents = localStorage.getItem('studentList');
+            if (savedStudents) students.value = JSON.parse(savedStudents);
+            
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode !== null) {
+              darkMode.value = savedDarkMode === 'true';
+              document.body.classList.toggle('dark-mode', darkMode.value);
+            }
+          } catch (e) {
+            console.error('Failed to load data from localStorage', e);
+          }
+          
+          if (probabilityRanges.value.length === 0) {
+            addRange();
+          }
+          
+          applyFontSettings();
+        });
+        
+        // 监听参数变化更新URL
+        watch([start, end, mode, noRepeat, operationMode, selectedGlobalFont, 
+              selectedNumberFont, nameSize, numberSize], updateUrlParams);
+        
+        // 监听起始和结束学号变化调整概率范围
+        watch([start, end], adjustProbabilityRanges);
+
+        return {
+          operationMode,
+          start,
+          end,
+          mode,
+          noRepeat,
+          currentNumber,
+          currentStudent,
+          isSetupPage,
+          usedNumbers,
+          students,
+          isContinuous,
+          showCelebration,
+          celebrationMessage,
+          notification,
+          showNotification,
+          showAdvanced,
+          probabilityRanges,
+          darkMode,
+          selectedGlobalFont,
+          selectedNumberFont,
+          nameSize,
+          numberSize,
+          toggleDarkMode,
+          getTotalNumbers,
+          drawNumber,
+          toggleContinuous,
+          triggerCelebration,
+          validateAndNavigate,
+          goBack,
+          resetUsedNumbers,
+          selectFile,
+          handleFileUpload,
+          deleteStudent,
+          clearStudents,
+          addRange,
+          removeRange,
+          applyFontSettings,
+          getRandomColor,
+          adjustProbabilityRanges,
+          updateUrlParams
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
