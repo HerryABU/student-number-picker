@@ -1,0 +1,23 @@
+/* file_upload 模块 */
+/* 文件上传区域 */
+    .file-upload {
+      margin: 1.5rem 0;
+      border: 2px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 2rem;
+      transition: var(--transition);
+      cursor: pointer;
+      text-align: center;
+    }
+    .file-upload:hover, .file-upload.drag-over {
+      border-color: var(--primary-color);
+      background-color: rgba(67, 97, 238, 0.05);
+    }
+    .file-upload.drag-over {
+      border-style: solid;
+      background-color: rgba(67, 97, 238, 0.1);
+    }
+    .file-upload input {
+      display: none;
+    }
+    /* 上传图标 */

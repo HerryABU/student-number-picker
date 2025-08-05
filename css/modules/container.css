@@ -1,0 +1,15 @@
+/* container 模块 */
+/* 主容器样式 */
+    .container {
+      background: var(--card-bg);
+      padding: 2.5rem 3rem;
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      width: min(90%, 1000px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin: 2rem 0;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    /* 容器顶部动态渐变条 */

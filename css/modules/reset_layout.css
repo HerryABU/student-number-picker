@@ -1,0 +1,8 @@
+/* reset_layout 模块 */
+/* 重置默认样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    /* 页面整体布局 */

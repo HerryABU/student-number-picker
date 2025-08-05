@@ -1,0 +1,30 @@
+/* table 模块 */
+/* 学生列表表格 */
+    .student-list {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .dark-mode .student-list {
+      background-color: var(--dark-card-bg);
+    }
+    .student-list th, .student-list td {
+      padding: 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .dark-mode .student-list th, .dark-mode .student-list td {
+      border-bottom-color: var(--dark-border-color);
+    }
+    .student-list th {
+      background-color: rgba(67, 97, 238, 0.1);
+      font-weight: bold;
+    }
+    .dark-mode .student-list th {
+      background-color: rgba(94, 114, 228, 0.2);
+    }
+    /* 批量抽取面板 */

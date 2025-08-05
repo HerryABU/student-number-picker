@@ -1,0 +1,9 @@
+/* mode_switch 模块 */
+/* 操作模式切换区域 */
+    .mode-switch {
+      display: flex;
+      justify-content: center;
+      margin: 2rem 0;
+      gap: 1rem;
+    }
+    /* 模式切换按钮 */

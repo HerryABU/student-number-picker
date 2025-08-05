@@ -1,0 +1,16 @@
+/* multi_draw_display 模块 */
+/* 连抽结果显示区域 */
+    .multi-draw-display {
+      margin-top: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+      width: 100%;
+    }
+    /* 连抽结果网格布局 */
+    .multi-draw-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+      padding: 10px;
+    }
+    /* 连抽结果单项样式 */

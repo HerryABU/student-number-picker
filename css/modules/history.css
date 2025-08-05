@@ -1,0 +1,29 @@
+/* history 模块 */
+/* 历史记录区域 */
+    .history {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      max-height: 150px;
+      overflow-y: auto;
+      transition: background 0.3s ease;
+    }
+    /* 历史记录标题 */
+    .history-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-light);
+      transition: color 0.3s ease;
+    }
+    /* 历史记录项容器 */
+    .history-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    /* 历史记录单项 */

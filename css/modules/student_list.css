@@ -1,0 +1,16 @@
+/* student_list 模块 */
+/* 学生名单管理面板 */
+    .student-list-panel {
+      padding: 1.5rem;
+      background: #f0f5ff;
+      border-radius: 8px;
+      margin-top: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    /* 分组选择器 */
+    .group-selector {
+      margin: 1rem 0;
+    }
+    /* 分组标签页 */
