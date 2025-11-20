@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能学号抽取系统 V5.8.2 - 模块化重构版</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f2f5;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .header h1 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+    
+    .controls {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      margin: 0 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    .btn-primary {
+      background-color: #4361ee;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: #3a56d4;
+    }
+    
+    .btn-danger {
+      background-color: #f72585;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: #e5177b;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .demo-section {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+    }
+    
+    .demo-section h2 {
+      color: #2c3e50;
+      margin-top: 0;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 15px;
+    }
+    
+    #pk-container {
+      min-height: 500px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>智能学号抽取系统 V5.8.2</h1>
+      <p>模块化重构版 - 支持懒加载与按需集成</p>
+    </div>
+    
+    <div class="controls">
+      <button class="btn btn-primary" onclick="initPKModule()">初始化抽取系统</button>
+      <button class="btn btn-danger" onclick="destroyPKModule()">销毁抽取系统</button>
+    </div>
+    
+    <div class="demo-section">
+      <h2>演示区域</h2>
+      <div id="pk-container"></div>
+    </div>
+    
+    <div class="demo-section">
+      <h2>集成说明</h2>
+      <pre style="background: #f8f9fa; padding: 15px; border-radius: 8px; overflow-x: auto;">
+// 在页面中集成抽取系统
+&lt;div id="my-container"&gt;&lt;/div&gt;
+
+&lt;script src="./pk-system/core/module.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  // 初始化系统
+  const pkInstance = window.initPKModule({
+    target: '#my-container',
+    namespace: 'mypk-', // 可选：自定义命名空间
+    autoStyleIsolation: true // 可选：自动样式隔离
+  });
+  
+  // 销毁系统（可选）
+  // pkInstance.destroy();
+&lt;/script&gt;
+      </pre>
+    </div>
+  </div>
+
+  <script src="./core/module.js"></script>
+  <script>
+    let currentInstance = null;
+    
+    async function initPKModule() {
+      if (currentInstance) {
+        console.log('系统已初始化，先销毁现有实例');
+        currentInstance.destroy();
+      }
+      
+      // 初始化PK模块
+      currentInstance = await window.initPKModule({
+        target: '#pk-container',
+        namespace: 'demo-',
+        autoStyleIsolation: true
+      });
+      
+      console.log('PK模块初始化完成');
+    }
+    
+    function destroyPKModule() {
+      if (currentInstance && typeof currentInstance.destroy === 'function') {
+        currentInstance.destroy();
+        currentInstance = null;
+        console.log('PK模块已销毁');
+      } else {
+        console.log('没有活动的PK模块实例');
+      }
+    }
+  </script>
+</body>
+</html>
