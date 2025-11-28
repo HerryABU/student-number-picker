@@ -1152,6 +1152,27 @@
             <option value="t">惊心动魄模式</option> <!-- 新增选项 -->
           </select>
         </div>
+        <!-- 性别筛选器 -->
+        <div class="form-group" v-if="operationMode === 'list'">
+          <label>性别筛选：</label>
+          <div style="display: flex; gap: 1rem;">
+            <button class="secondary" 
+                    :class="{ 'primary': genderMode === 'all' }"
+                    @click="applyGenderFilter('all')">
+              <i class="fas fa-users"></i> 全部
+            </button>
+            <button class="secondary" 
+                    :class="{ 'primary': genderMode === 'male' }"
+                    @click="applyGenderFilter('male')">
+              <i class="fas fa-mars"></i> 男生
+            </button>
+            <button class="secondary" 
+                    :class="{ 'primary': genderMode === 'female' }"
+                    @click="applyGenderFilter('female')">
+              <i class="fas fa-venus"></i> 女生
+            </button>
+          </div>
+        </div>
         <!-- 不重复抽取选项 -->
         <div class="form-group">
           <label></label>
@@ -1453,6 +1474,36 @@
         });
         const multiEffectNumber = ref(0); // 全屏效果中显示的学号
         const multiEffectName = ref(''); // 全屏效果中显示的姓名
+        
+        // --- 新增功能状态变量 ---
+        // 性别模式相关
+        const genderMode = ref('all'); // 性别模式: 'all' | 'male' | 'female'
+        const showGenderFilter = ref(false); // 是否显示性别筛选器
+        
+        // 转盘模式相关
+        const wheelMode = ref('none'); // 转盘模式: 'none' | 'flat' | 'stereo'
+        const isWheelSpinning = ref(false); // 转盘是否正在旋转
+        const wheelRotation = ref(0); // 转盘旋转角度
+        
+        // PK模式相关
+        const isPKMode = ref(false); // 是否启用PK模式
+        const pkTeams = ref({ team1: [], team2: [] }); // PK双方队伍
+        const showFencingAnimation = ref(false); // 是否显示击剑动画
+        const pkResult = ref({ winner: null, team1: null, team2: null }); // PK结果
+        
+        // 音效相关
+        const enableSound = ref(true); // 是否启用音效
+        const enableTTS = ref(false); // 是否启用TTS
+        const audioContext = ref(null); // Web Audio API上下文
+        const soundEffects = ref({}); // 音效对象
+        
+        // 节日主题相关
+        const currentFestival = ref('normal'); // 当前节日主题: 'normal' | 'spring' | 'christmas' | 'valentine' 等
+        const showFestivalUI = ref(false); // 是否显示节日UI
+        
+        // 懒加载相关
+        const lazyLoadEnabled = ref(false); // 是否启用懒加载
+        
         // --- 用户界面设置 ---
         const nameSize = ref(5); // 姓名字号 (rem)
         const numberSize = ref(80); // 学号大小 (pt)
@@ -1464,10 +1515,37 @@
           const group = studentGroups.value.find(g => g.name === currentGroup.value);
           return group ? group.students : [];
         });
+        
+        // 计算经过性别筛选的可用学生列表
+        const filteredStudents = computed(() => {
+          let students = [...currentStudents.value];
+          
+          // 如果是学号范围模式，创建学生列表
+          if (operationMode.value === 'range') {
+            students = [];
+            for (let i = start.value; i <= end.value; i++) {
+              students.push({ 
+                student_id: i, 
+                name: `学号${i}`, 
+                gender: Math.random() > 0.5 ? 'male' : 'female' // 临时性别分配，实际应从数据获取
+              });
+            }
+            return students;
+          }
+          
+          // 如果是列表模式，根据性别筛选
+          if (genderMode.value === 'male') {
+            return students.filter(student => student.gender === 'male');
+          } else if (genderMode.value === 'female') {
+            return students.filter(student => student.gender === 'female');
+          }
+          
+          return students;
+        });
         // 计算总共有多少个可抽取的学号
         const getTotalNumbers = () => {
           if (operationMode.value === 'list') {
-            return currentStudents.value.length;
+            return filteredStudents.value.length;
           } else {
             return end.value - start.value + 1;
           }
@@ -1475,11 +1553,11 @@
         // 获取所有可用的学号（包括学号和姓名）
         const getAllNumbers = () => {
           if (operationMode.value === 'list') {
-            return [...currentStudents.value];
+            return [...filteredStudents.value];
           } else {
             const numbers = [];
             for (let i = start.value; i <= end.value; i++) {
-              numbers.push({ student_id: i, name: '' });
+              numbers.push({ student_id: i, name: `学号${i}`, gender: Math.random() > 0.5 ? 'male' : 'female' });
             }
             return numbers;
           }
@@ -1642,6 +1720,12 @@
             currentNumber.value = result.student_id;
             currentStudent.value = result;
             multiDrawResults.value = [result];
+            
+            // 播放抽取成功音效
+            playDrawSuccessSound();
+            // 播报姓名
+            speakName(result.name);
+            
             if (usedNumbers.value.length === getTotalNumbers()) {
               triggerCelebration();
             }
@@ -1869,8 +1953,15 @@
                 if (!row || row.length === 0) continue;
                 const studentId = String(row[0]).trim();
                 const name = row.length > 1 ? String(row[1]).trim() : '';
+                const gender = row.length > 2 ? String(row[2]).toLowerCase().trim() : '';
                 if (studentId) {
-                  newStudents.push({ student_id: studentId, name });
+                  newStudents.push({ 
+                    student_id: studentId, 
+                    name,
+                    gender: (gender === '男' || gender === 'male' || gender === 'M' || gender === 'm') ? 'male' : 
+                           (gender === '女' || gender === 'female' || gender === 'F' || gender === 'f') ? 'female' : 
+                           Math.random() > 0.5 ? 'male' : 'female' // 默认随机分配
+                  });
                 }
               }
               if (newStudents.length === 0) {
@@ -2063,6 +2154,183 @@
         const removeRange = (index) => {
           probabilityRanges.value.splice(index, 1);
         };
+        
+        // --- 音效和TTS系统 ---
+        // 初始化音频上下文
+        const initAudioContext = () => {
+          if (!audioContext.value) {
+            try {
+              window.AudioContext = window.AudioContext || window.webkitAudioContext;
+              audioContext.value = new AudioContext();
+            } catch (e) {
+              console.warn('Web Audio API not supported', e);
+              audioContext.value = null;
+            }
+          }
+        };
+        
+        // 创建简单音效
+        const createSoundEffect = (frequency, duration, type = 'sine') => {
+          if (!audioContext.value) return;
+          
+          const oscillator = audioContext.value.createOscillator();
+          const gainNode = audioContext.value.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.value.destination);
+          
+          oscillator.type = type;
+          oscillator.frequency.value = frequency;
+          gainNode.gain.value = 0.3;
+          
+          const now = audioContext.value.currentTime;
+          gainNode.gain.setValueAtTime(0.3, now);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+          
+          oscillator.start(now);
+          oscillator.stop(now + duration);
+        };
+        
+        // 播放抽取成功音效
+        const playDrawSuccessSound = () => {
+          if (!enableSound.value || !audioContext.value) return;
+          initAudioContext();
+          // 播放一个上扬的音调表示成功
+          createSoundEffect(523.25, 0.2); // C5
+          setTimeout(() => createSoundEffect(659.25, 0.3), 100); // E5
+        };
+        
+        // 播放转盘旋转音效
+        const playWheelSpinSound = () => {
+          if (!enableSound.value || !audioContext.value) return;
+          initAudioContext();
+          // 播放连续的音效表示旋转
+          for (let i = 0; i < 10; i++) {
+            setTimeout(() => {
+              createSoundEffect(400 + i * 20, 0.05);
+            }, i * 50);
+          }
+        };
+        
+        // 播放PK模式音效
+        const playPKSound = () => {
+          if (!enableSound.value || !audioContext.value) return;
+          initAudioContext();
+          // 播放PK开始的音效
+          createSoundEffect(300, 0.1);
+          setTimeout(() => createSoundEffect(400, 0.1), 100);
+          setTimeout(() => createSoundEffect(500, 0.1), 200);
+        };
+        
+        // 播放击剑动画音效
+        const playFencingSound = () => {
+          if (!enableSound.value || !audioContext.value) return;
+          initAudioContext();
+          // 播放击剑碰撞音效
+          createSoundEffect(800, 0.05);
+          setTimeout(() => createSoundEffect(700, 0.05), 50);
+        };
+        
+        // TTS功能：朗读姓名
+        const speakName = (name) => {
+          if (!enableTTS.value || !name) return;
+          
+          if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(name);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            speechSynthesis.speak(utterance);
+          } else {
+            console.warn('TTS not supported in this browser');
+          }
+        };
+        
+        // --- 转盘模式功能 ---
+        // 开始转盘旋转
+        const startWheelSpin = () => {
+          if (wheelMode.value === 'none') return;
+          
+          isWheelSpinning.value = true;
+          playWheelSpinSound();
+          
+          // 计算随机旋转
+          const extraRotation = 5 * 360; // 5圈
+          const randomDegree = Math.floor(Math.random() * 360);
+          const totalRotation = extraRotation + randomDegree;
+          
+          // 更新转盘旋转角度
+          wheelRotation.value = totalRotation;
+          
+          // 旋转结束后执行抽取
+          setTimeout(() => {
+            isWheelSpinning.value = false;
+            // 执行抽取逻辑
+            drawNumber();
+          }, 3000); // 3秒旋转时间
+        };
+        
+        // --- PK模式功能 ---
+        // 开始PK模式
+        const startPKMode = () => {
+          isPKMode.value = true;
+          showFencingAnimation.value = true;
+          playPKSound();
+          playFencingSound();
+          
+          // 显示击剑动画2秒后开始抽取
+          setTimeout(() => {
+            showFencingAnimation.value = false;
+            // 从可用学生中随机分配两队
+            const availableStudents = getAllNumbers();
+            if (availableStudents.length >= 2) {
+              // 随机打乱数组
+              const shuffled = [...availableStudents].sort(() => Math.random() - 0.5);
+              pkTeams.value.team1 = [shuffled[0]];
+              pkTeams.value.team2 = [shuffled[1]];
+              
+              // 显示结果
+              pkResult.value = {
+                winner: Math.random() > 0.5 ? pkTeams.value.team1[0] : pkTeams.value.team2[0],
+                team1: pkTeams.value.team1[0],
+                team2: pkTeams.value.team2[0]
+              };
+            }
+          }, 2000);
+        };
+        
+        // --- 节日主题功能 ---
+        // 检测当前节日并应用主题
+        const checkAndApplyFestivalTheme = () => {
+          const now = new Date();
+          const month = now.getMonth() + 1;
+          const day = now.getDate();
+          
+          // 检测节日
+          if (month === 1 && day === 1) {
+            currentFestival.value = 'new_year';
+          } else if (month === 2 && day === 14) {
+            currentFestival.value = 'valentine';
+          } else if ((month === 12 && day === 25) || (month === 12 && day === 24)) {
+            currentFestival.value = 'christmas';
+          } else if (month === 10 && day === 1) {
+            currentFestival.value = 'national_day';
+          } else if (month === 12 && day === 20) { // 示例日期，实际应检测春节
+            currentFestival.value = 'spring_festival';
+          } else {
+            currentFestival.value = 'normal';
+          }
+          
+          showFestivalUI.value = currentFestival.value !== 'normal';
+        };
+        
+        // 应用性别筛选
+        const applyGenderFilter = (mode) => {
+          genderMode.value = mode;
+          showNotification(`已切换到${mode === 'all' ? '全部' : mode === 'male' ? '男生' : '女生'}模式`);
+        };
+        
 // - 生命周期钩子 -
 onMounted(() => {
   try {
@@ -2104,6 +2372,10 @@ onMounted(() => {
     addRange();
   }
   applyFontSettings();
+  
+  // 检测并应用节日主题
+  checkAndApplyFestivalTheme();
+  
   // 4. 最后，确保URL与当前状态完全同步（处理那些URL中没有但需要初始化的参数）
   updateUrlParams();
 });
@@ -2214,6 +2486,18 @@ onMounted(() => {
           showModal, modalConfig, modalInputRef,
           // 新增：惊心动魄模式
           isTensionMode, tensionMaxCount, tensionSpeed,
+          // 新增：性别模式
+          genderMode, showGenderFilter,
+          // 新增：转盘模式
+          wheelMode, isWheelSpinning, wheelRotation,
+          // 新增：PK模式
+          isPKMode, pkTeams, showFencingAnimation, pkResult,
+          // 新增：音效和TTS
+          enableSound, enableTTS, audioContext, soundEffects,
+          // 新增：节日主题
+          currentFestival, showFestivalUI,
+          // 新增：懒加载
+          lazyLoadEnabled,
           // 核心数据
           operationMode, start, end, mode, noRepeat, currentNumber, currentStudent,
           usedNumbers, multiDrawResults, studentGroups, currentGroup, probabilityRanges,
@@ -2221,7 +2505,7 @@ onMounted(() => {
           // UI设置
           nameSize, numberSize, multiDrawCount, batchSize,
           // 计算属性
-          currentStudents, getTotalNumbers,
+          currentStudents, filteredStudents, getTotalNumbers,
           // 方法
           showNotification, toggleDarkMode, handleDragEnter, handleDragOver,
           handleDragLeave, handleDrop, getRandomColor, getWeightedRandomNumber,
@@ -2233,6 +2517,17 @@ onMounted(() => {
           addRange, removeRange, applyFontSettings, adjustProbabilityRanges, deleteGroup,
           // 新增：惊心动魄模式方法
           startTensionMode,
+          // 新增：音效和TTS方法
+          initAudioContext, createSoundEffect, playDrawSuccessSound, playWheelSpinSound,
+          playPKSound, playFencingSound, speakName,
+          // 新增：转盘模式方法
+          startWheelSpin,
+          // 新增：PK模式方法
+          startPKMode,
+          // 新增：节日主题方法
+          checkAndApplyFestivalTheme,
+          // 新增：性别筛选方法
+          applyGenderFilter,
           // 新增模态框方法
           showModalWithConfig, closeModal, showDeleteGroupModal, showClearGroupModal,
           showResetHistoryModal, showClearHistoryModal, showAddGroupModal, showRenameGroupModal
