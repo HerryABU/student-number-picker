@@ -12,7 +12,7 @@ node_modules/
 # Logs
 *.log
 
-# Environment
+# Environment files
 .env
 .env.local
 *.env.*
@@ -20,23 +20,58 @@ node_modules/
 # Build artifacts
 dist/
 build/
-*.js.map
-*.css.map
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.a
+*.out
 
-# Python (if applicable)
+# Python
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 .Python
+env/
 venv/
 .venv/
-
-# Coverage
-coverage/
-htmlcov/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
 .coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git/modules/
+.pytest_cache/
+.mypy_cache/
+.hypothesis/
 
-# System files
+# JavaScript
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+node_modules/
+jspm_packages/
+*.min.js
+*.min.css
+
+# Web
+*.html.gz
+*.js.gz
+*.css.gz
+
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 ```

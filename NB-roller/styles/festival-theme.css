@@ -1,0 +1,156 @@
+/* 节日主题样式 */
+#festival-decorations {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+/* 春节主题 */
+body.spring-theme {
+  background: linear-gradient(135deg, #c81a2b 0%, #e63946 100%);
+}
+
+.spring-theme .title {
+  color: #ffd700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.spring-theme .control-panel,
+.spring-theme .history-panel,
+.spring-theme .settings-panel {
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.spring-lantern {
+  position: absolute;
+  width: 40px;
+  height: 60px;
+  background: radial-gradient(circle at center, #ff6b6b, #c81a2b);
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(255, 107, 107, 0.8);
+  animation: float 6s ease-in-out infinite;
+}
+
+.spring-lantern::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 20px;
+  background: #8b4513;
+}
+
+.spring-firecracker {
+  position: absolute;
+  width: 8px;
+  height: 30px;
+  background: #ff4444;
+  animation: firecracker-anim 0.5s ease-in-out infinite alternate;
+}
+
+/* 圣诞节主题 */
+body.christmas-theme {
+  background: linear-gradient(135deg, #0a5f2c 0%, #1a7a3d 100%);
+}
+
+.christmas-theme .title {
+  color: #ff4444;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.christmas-theme .control-panel,
+.christmas-theme .history-panel,
+.christmas-theme .settings-panel {
+  background: rgba(255, 68, 68, 0.15);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+}
+
+.christmas-deco {
+  position: absolute;
+  font-size: 24px;
+  animation: float 4s ease-in-out infinite;
+}
+
+.snowflake {
+  position: absolute;
+  color: #fff;
+  font-size: 20px;
+  animation: snowfall linear infinite;
+  user-select: none;
+}
+
+@keyframes snowfall {
+  to {
+    transform: translateY(100vh) rotate(360deg);
+  }
+}
+
+/* 情人节主题 */
+body.valentine-theme {
+  background: linear-gradient(135deg, #ff6b9d 0%, #e91e63 100%);
+}
+
+.valentine-theme .title {
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.valentine-theme .control-panel,
+.valentine-theme .history-panel,
+.valentine-theme .settings-panel {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.heart-deco {
+  position: absolute;
+  color: #ff4081;
+  font-size: 24px;
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* 万圣节主题 */
+body.halloween-theme {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+}
+
+.halloween-theme .title {
+  color: #000000;
+  text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+.halloween-theme .control-panel,
+.halloween-theme .history-panel,
+.halloween-theme .settings-panel {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.4);
+}
+
+.halloween-deco {
+  position: absolute;
+  font-size: 24px;
+  animation: float 5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(10deg); }
+}
+
+@keyframes firecracker-anim {
+  from { transform: scaleY(1); }
+  to { transform: scaleY(1.1); }
+}

@@ -1,0 +1,65 @@
+/* 模态框样式 */
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 15px;
+  padding: 30px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.close {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #aaa;
+  transition: color 0.3s ease;
+}
+
+.close:hover {
+  color: #333;
+}
+
+.modal-body {
+  margin: 20px 0;
+}
+
+.modal-footer {
+  text-align: right;
+  margin-top: 20px;
+}
+
+.modal-footer .btn {
+  margin-left: 10px;
+}
