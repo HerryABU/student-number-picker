@@ -1,0 +1,145 @@
+/* 转盘模式样式 */
+.roulette-container {
+  margin: 30px auto;
+  width: 400px;
+  height: 400px;
+  position: relative;
+}
+
+/* 平面转盘样式 */
+.flat-roulette {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+  transition: transform 4s cubic-bezier(0.17, 0.67, 0.14, 0.93);
+  background: white;
+}
+
+.roulette-pointer {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 50px;
+  background: #e74c3c;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.roulette-segment {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  transform-origin: bottom right;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.roulette-segment-text {
+  transform: rotate(45deg);
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+  width: 80px;
+  position: absolute;
+  left: 20px;
+  top: 30px;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* 3D转盘样式 */
+.roulette-3d-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  perspective: 1000px;
+}
+
+.roulette-3d-wheel {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 4s cubic-bezier(0.17, 0.67, 0.14, 0.93);
+}
+
+.roulette-3d-item {
+  position: absolute;
+  width: 80px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  border-radius: 8px;
+  transform-origin: center;
+}
+
+/* 翻卡片效果 */
+.flip-card {
+  width: 120px;
+  height: 160px;
+  perspective: 1000px;
+  margin: 20px auto;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+
+.flip-card-front {
+  background: linear-gradient(45deg, #3498db, #2980b9);
+  color: white;
+  font-size: 1.2em;
+}
+
+.flip-card-back {
+  background: linear-gradient(45deg, #e74c3c, #c0392b);
+  color: white;
+  font-size: 1.5em;
+  transform: rotateY(180deg);
+}
+
+.roulette-controls {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.roulette-controls .mode-select {
+  margin-right: 15px;
+  padding: 10px 15px;
+  border-radius: 25px;
+  font-size: 16px;
+}

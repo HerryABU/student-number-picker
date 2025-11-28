@@ -1,0 +1,151 @@
+/* 控制面板样式 */
+.control-panel {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.title {
+  color: white;
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 模式选择按钮 */
+.mode-selector {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.mode-btn {
+  padding: 10px 20px;
+  border: 2px solid transparent;
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  min-width: 100px;
+}
+
+.mode-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.mode-btn.active {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: #ff6b6b;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+/* 音效控制 */
+.audio-control {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  align-items: center;
+}
+
+.audio-control label {
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.audio-control input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+
+/* 设置面板 */
+.settings-panel {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 15px;
+  margin: 20px 0;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.settings-panel .btn {
+  margin: 0 5px;
+  min-width: 100px;
+}
+
+/* 历史记录面板 */
+.history-panel {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.history-panel h3 {
+  color: white;
+  margin-bottom: 15px;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.history-list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+
+.history-item {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px 12px;
+  margin: 5px 0;
+  border-radius: 6px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.history-item .number {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.history-item .name {
+  font-style: italic;
+}
+
+.history-item .time {
+  font-size: 0.8em;
+  opacity: 0.8;
+}
+
+/* 男女生模式特有样式 */
+.gender-controls {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.gender-select {
+  padding: 10px 15px;
+  border-radius: 25px;
+  font-size: 16px;
+  margin-bottom: 20px;
+  min-width: 150px;
+}
