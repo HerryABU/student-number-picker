@@ -2,9 +2,7 @@
  * Vue应用定义文件 - 包含完整的Vue 3应用逻辑
  */
 
-import { loadVue } from '../core/loader.js';
-import { PersistenceManager } from '../core/persistence.js';
-import { loadXLSX } from '../lib/xlsx-loader.js';
+// Note: These imports are now handled dynamically in the createPKApp function to ensure true lazy loading
 
 /**
  * 创建PK应用实例
@@ -12,6 +10,14 @@ import { loadXLSX } from '../lib/xlsx-loader.js';
  * @returns {Promise<Object>} Vue应用实例
  */
 export async function createPKApp(config) {
+  // Dynamically import all dependencies to ensure true lazy loading
+  const [{ loadVue }, { PersistenceManager }, { loadXLSX }, { globalAudioManager }] = await Promise.all([
+    import('../core/loader.js'),
+    import('../core/persistence.js'),
+    import('../lib/xlsx-loader.js'),
+    import('../core/audio.js')
+  ]);
+  
   const { createApp, ref, computed, onMounted, watch } = await loadVue();
   
   // 定义应用模板字符串
@@ -437,6 +443,7 @@ export async function createPKApp(config) {
       });
       const multiEffectNumber = ref(0); // 全屏效果中显示的学号
       const multiEffectName = ref(''); // 全屏效果中显示的姓名
+      const enableSound = ref(true); // 是否启用音效
       // --- 用户界面设置 ---
       const nameSize = ref(5); // 姓名字号 (rem)
       const numberSize = ref(80); // 学号大小 (pt)
@@ -634,6 +641,10 @@ export async function createPKApp(config) {
           currentNumber.value = result.student_id;
           currentStudent.value = result;
           multiDrawResults.value = [result];
+          
+          // 播放抽取音效
+          globalAudioManager.playSystemSound('draw');
+          
           if (usedNumbers.value.length === getTotalNumbers()) {
             triggerCelebration();
           }
@@ -665,6 +676,8 @@ export async function createPKApp(config) {
               currentNumber.value = result.student_id;
               currentStudent.value = result;
               multiDrawResults.value = [result];
+              // 播放抽取音效
+              globalAudioManager.playSystemSound('draw');
             }
           }, 30);
         }
@@ -728,6 +741,8 @@ export async function createPKApp(config) {
             multiDrawResults.value.push(result);
             multiEffectNumber.value = result.student_id;
             multiEffectName.value = result.name || '';
+            // 播放抽取音效
+            globalAudioManager.playSystemSound('draw');
             count++;
           }
         }, 300);
@@ -765,6 +780,8 @@ export async function createPKApp(config) {
                   usedNumbers.value.push(result);
                 }
               }
+              // 播放抽取音效
+              globalAudioManager.playSystemSound('draw');
             }
           }
         }
@@ -835,6 +852,8 @@ export async function createPKApp(config) {
             currentStudent.value = finalResult;
             multiDrawResults.value = [finalResult];
             applyAnimation('popIn'); // 使用 popIn 动画定格
+            // 播放抽取音效
+            globalAudioManager.playSystemSound('draw');
             if (usedNumbers.value.length === getTotalNumbers()) {
               triggerCelebration();
             }
@@ -870,8 +889,14 @@ export async function createPKApp(config) {
               if (!row || row.length === 0) continue;
               const studentId = String(row[0]).trim();
               const name = row.length > 1 ? String(row[1]).trim() : '';
+              const gender = row.length > 2 ? String(row[2]).trim() : '';
               if (studentId) {
-                newStudents.push({ student_id: studentId, name });
+                newStudents.push({ 
+                  student_id: studentId, 
+                  name,
+                  gender: gender.toLowerCase() === '男' || gender.toLowerCase() === 'male' ? 'male' : 
+                          gender.toLowerCase() === '女' || gender.toLowerCase() === 'female' ? 'female' : 'unknown'
+                });
               }
             }
             if (newStudents.length === 0) {

@@ -1,6 +1,6 @@
 /**
  * 智能学号抽取系统 - 模块入口
- * 实现懒加载架构，仅在调用 initPKModule 时动态加载 Vue
+ * 实现懒加载架构，支持PK模式、转盘模式、节日主题和音效
  */
 
 (function (global, factory) {
@@ -11,6 +11,17 @@
   'use strict';
 
   let instances = new Map(); // 存储所有实例
+
+  // 懒加载函数 - 确保组件真正按需加载
+  async function lazyLoadModule(modulePath) {
+    try {
+      const module = await import(modulePath);
+      return module;
+    } catch (error) {
+      console.error(`Failed to load module: ${modulePath}`, error);
+      throw error;
+    }
+  }
 
   /**
    * 初始化 PK 模块
@@ -62,8 +73,8 @@
       await injectScopedStyles(finalConfig.namespace);
     }
 
-    // 动态加载 Vue 应用
-    const { createPKApp } = await import('../views/app.js');
+    // 懒加载 Vue 应用 - 确保只有在需要时才加载
+    const { createPKApp } = await lazyLoadModule('../views/app.js');
     const app = await createPKApp(finalConfig);
     
     // 挂载应用
@@ -92,7 +103,7 @@
       existingStyle.remove();
     }
 
-    // 通过 fetch 获取样式内容
+    // 通过 fetch 获取样式内容 - 确保懒加载
     const [
       baseCSS,
       displayCSS,
@@ -114,12 +125,12 @@
     style.id = 'pk-scoped-styles';
     
     // 为所有样式添加命名空间前缀
-    const scopedBaseCSS = baseCSS.replace(/\.([a-zA-Z0-9_-]+)/g, `[data-pk-ns="${namespace}"] .$1`);
-    const scopedDisplayCSS = displayCSS.replace(/\.([a-zA-Z0-9_-]+)/g, `[data-pk-ns="${namespace}"] .$1`);
-    const scopedPanelsCSS = panelsCSS.replace(/\.([a-zA-Z0-9_-]+)/g, `[data-pk-ns="${namespace}"] .$1`);
-    const scopedButtonsCSS = buttonsCSS.replace(/\.([a-zA-Z0-9_-]+)/g, `[data-pk-ns="${namespace}"] .$1`);
-    const scopedDarkModeCSS = darkModeCSS.replace(/\.([a-zA-Z0-9_-]+)/g, `[data-pk-ns="${namespace}"] .$1`);
-    const scopedModalCSS = modalCSS.replace(/\.([a-zA-Z0-9_-]+)/g, `[data-pk-ns="${namespace}"] .$1`);
+    const scopedBaseCSS = baseCSS.replace(/\\.([a-zA-Z0-9_-]+)/g, `[data-pk-ns="${namespace}"] .$1`);
+    const scopedDisplayCSS = displayCSS.replace(/\\.([a-zA-Z0-9_-]+)/g, `[data-pk-ns="${namespace}"] .$1`);
+    const scopedPanelsCSS = panelsCSS.replace(/\\.([a-zA-Z0-9_-]+)/g, `[data-pk-ns="${namespace}"] .$1`);
+    const scopedButtonsCSS = buttonsCSS.replace(/\\.([a-zA-Z0-9_-]+)/g, `[data-pk-ns="${namespace}"] .$1`);
+    const scopedDarkModeCSS = darkModeCSS.replace(/\\.([a-zA-Z0-9_-]+)/g, `[data-pk-ns="${namespace}"] .$1`);
+    const scopedModalCSS = modalCSS.replace(/\\.([a-zA-Z0-9_-]+)/g, `[data-pk-ns="${namespace}"] .$1`);
     
     style.textContent = `
       ${scopedBaseCSS}
@@ -131,6 +142,99 @@
     `;
 
     document.head.appendChild(style);
+  }
+
+  /**
+   * 懒加载PK模式组件
+   * @returns {Promise<Object>} PKMode类
+   */
+  async function loadPKMode() {
+    const { PKMode } = await lazyLoadModule('../views/pk-mode.js');
+    return PKMode;
+  }
+
+  /**
+   * 懒加载转盘模式组件
+   * @returns {Promise<Object>} RouletteMode类
+   */
+  async function loadRouletteMode() {
+    const { RouletteMode } = await lazyLoadModule('../views/roulette-mode.js');
+    return RouletteMode;
+  }
+
+  /**
+   * 懒加载音频管理器
+   * @returns {Promise<Object>} 音频管理器实例
+   */
+  async function loadAudioManager() {
+    const { globalAudioManager } = await lazyLoadModule('./audio.js');
+    return globalAudioManager;
+  }
+
+  /**
+   * 应用节日主题
+   * @param {string} theme - 节日主题名称
+   */
+  function applyFestivalTheme(theme) {
+    // 移除现有的节日主题类
+    document.body.classList.remove(
+      'festival-spring', 
+      'festival-christmas', 
+      'festival-valentine', 
+      'festival-halloween',
+      'festival-mode'
+    );
+    
+    // 添加新的节日主题类
+    if (theme) {
+      document.body.classList.add(`festival-${theme}`, 'festival-mode');
+      
+      // 添加节日装饰
+      addFestivalDecorations(theme);
+    }
+  }
+
+  /**
+   * 添加节日装饰元素
+   * @param {string} theme - 节日主题
+   */
+  function addFestivalDecorations(theme) {
+    // 移除现有的装饰
+    const existingDecorations = document.querySelector('.festival-decorations');
+    if (existingDecorations) {
+      existingDecorations.remove();
+    }
+    
+    // 根据主题添加装饰元素
+    const decorations = document.createElement('div');
+    decorations.className = 'festival-decorations';
+    
+    let decorationIcons = [];
+    switch (theme) {
+      case 'spring':
+        decorationIcons = ['🎊', '🧧', '🧨', '🥟', '🍊'];
+        break;
+      case 'christmas':
+        decorationIcons = ['🎄', '🎅', '🎁', '❄️', '⛄'];
+        break;
+      case 'valentine':
+        decorationIcons = ['💝', '💕', '💖', '💗', '💞'];
+        break;
+      case 'halloween':
+        decorationIcons = ['🎃', '👻', '💀', '🕷️', '🕸️'];
+        break;
+      default:
+        decorationIcons = ['🎉', '🎊', '✨', '🎈', '🎁'];
+    }
+    
+    decorationIcons.forEach((icon, index) => {
+      const decoration = document.createElement('div');
+      decoration.className = 'decoration';
+      decoration.innerHTML = icon;
+      decorations.appendChild(decoration);
+    });
+    
+    document.body.appendChild(decorations);
   }
 
   /**
@@ -159,9 +263,17 @@
   // 将初始化函数暴露到全局
   if (typeof window !== 'undefined') {
     window.initPKModule = initPKModule;
+    window.loadPKMode = loadPKMode;
+    window.loadRouletteMode = loadRouletteMode;
+    window.loadAudioManager = loadAudioManager;
+    window.applyFestivalTheme = applyFestivalTheme;
   }
 
   return {
-    initPKModule
+    initPKModule,
+    loadPKMode,
+    loadRouletteMode,
+    loadAudioManager,
+    applyFestivalTheme
   };
 });

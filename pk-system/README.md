@@ -1,131 +1,179 @@
-# 智能学号抽取系统 V5.8.2
+# 智能学号抽取系统 V6.0
 
-## 重构版 - 模块化、懒加载架构
+## 功能概述
 
-### 🎯 特性
+本系统在原有功能基础上，新增了以下功能：
 
-- **懒加载架构**：首屏零JavaScript执行，仅在调用`initPKModule()`时动态加载Vue
-- **完全模块化**：可独立集成到任意页面，不污染宿主环境
-- **样式隔离**：自动命名空间前缀，防止CSS冲突
-- **功能完整**：保留100%原有功能（学号范围/Excel导入、多组管理、连抽、批量、惊心动魄模式等）
-- **按需销毁**：提供destroy方法完全清理资源
+1. **PK模式（男女生对战）**
+2. **击剑动画（开始时）**
+3. **转盘抽取模式（平面圆形和立体侧面环形+翻卡片两种）**
+4. **节日UI主题**
+5. **懒加载机制**
+6. **音效系统（使用Web Audio API）**
 
-### 📁 目录结构
+## 新增功能详情
+
+### 1. PK模式（男女生对战）
+
+- 支持男女生分组对战
+- 实时计分系统
+- 击剑动画效果
+- 音效配合
+
+### 2. 击剑动画
+
+- 在PK模式开始时显示击剑交锋动画
+- 使用CSS动画实现
+- 配合击剑音效
+
+### 3. 转盘抽取模式
+
+- **平面圆形转盘**：标准圆形转盘，带指针和颜色分区
+- **立体环形+翻卡片**：3D立体效果，抽取后翻转卡片显示结果
+- 两种模式可自由切换
+
+### 4. 节日UI主题
+
+- **春节主题**：红色系，包含灯笼、红包等装饰
+- **圣诞节主题**：红绿配色，包含圣诞树、雪花等装饰
+- **情人节主题**：粉色系，包含爱心等装饰
+- **万圣节主题**：橙色系，包含南瓜灯、幽灵等装饰
+- 节日装饰动态添加，增强节日氛围
+
+### 5. 懒加载机制
+
+- 按需加载组件，提升性能
+- 减少初始加载时间
+- 模块化架构设计
+
+### 6. 音效系统
+
+- 使用Web Audio API实现
+- 包含点击、抽取、庆祝、翻转、击剑等多种音效
+- 支持音效开关控制
+
+## 文件结构
 
 ```
 pk-system/
-├── main.html                    ← 演示页面（仅用于本地演示）
 ├── core/
-│   ├── module.js                ← 全局入口：window.initPKModule(config)
-│   ├── loader.js                ← 动态加载Vue、挂载应用、注入样式
-│   └── persistence.js           ← localStorage 封装（带版本）
-├── lib/
-│   └── xlsx-loader.js           ← 动态加载 XLSX（仅在文件上传时）
-├── styles/
-│   ├── base.css                 ← 全局变量、重置、容器布局（带作用域）
-│   ├── display.css              ← 结果区、动画
-│   ├── panels.css               ← 设置/批量/历史面板
-│   ├── buttons.css              ← 按钮样式
-│   ├── dark-mode.css            ← 深色模式
-│   └── modal.css                ← 模态框
+│   ├── module.js           # 主模块文件（新增功能）
+│   ├── loader.js           # 加载器
+│   ├── persistence.js      # 持久化管理
+│   └── audio.js            # 音频管理器（新增）
 ├── views/
-│   └── app.js                   ← Vue 应用定义（setup + template 字符串）
-├── components/
-│   └── ...                      ← 可选拆分组件（如 Modal、FileUploader）
-├── utils/
-│   └── ...                      ← 工具函数（URL、概率、动画等）
-└── README.md                    ← 集成说明
+│   ├── app.js              # 主应用
+│   ├── pk-mode.js          # PK模式组件（新增）
+│   └── roulette-mode.js    # 转盘模式组件（新增）
+├── styles/
+│   ├── base.css            # 基础样式
+│   ├── display.css         # 显示样式
+│   ├── panels.css          # 面板样式
+│   ├── buttons.css         # 按钮样式
+│   ├── dark-mode.css       # 深色模式样式
+│   ├── modal.css           # 模态框样式
+│   └── festival-theme.css  # 节日主题样式（新增）
+├── lib/
+│   └── xlsx-loader.js      # Excel加载器
+├── main.html               # 主页面
+├── demo.html               # 功能演示页面（新增）
+└── README.md               # 说明文档
 ```
 
-### 🚀 快速集成
+## 使用方法
 
-在HTML页面中添加容器元素：
+### 1. 演示页面
 
-```html
-<div id="my-container"></div>
-```
+访问 `demo.html` 页面可以体验所有新功能：
 
-引入模块并初始化：
+- 点击不同按钮初始化各种模式
+- 选择节日主题切换UI
+- 控制音效开关
+- 切换不同抽取模式
 
-```html
-<script src="./pk-system/core/module.js"></script>
-<script>
-  // 初始化系统
-  const pkInstance = window.initPKModule({
-    target: '#my-container',        // 目标容器选择器
-    namespace: 'mypk-',            // 可选：自定义命名空间前缀
-    autoStyleIsolation: true       // 可选：自动样式隔离
-  });
-  
-  // 销毁系统（可选）
-  // pkInstance.destroy();
-</script>
-```
-
-### 🔧 配置选项
-
-| 选项 | 类型 | 默认值 | 描述 |
-|------|------|--------|------|
-| `target` | string | `'#pk-container'` | 目标容器选择器 |
-| `namespace` | string | `'pk-'` | 命名空间前缀，用于CSS隔离 |
-| `autoStyleIsolation` | boolean | `true` | 是否自动应用样式隔离 |
-
-### 📋 功能列表
-
-- ✅ 学号范围模式 / Excel名单导入
-- ✅ 多组管理（创建、重命名、删除分组）
-- ✅ 单次抽取 / 快速抽取 / 惊心动魄模式
-- ✅ 连抽 / 批量抽取
-- ✅ 概率权重设置
-- ✅ 深色模式
-- ✅ URL参数同步
-- ✅ 庆祝动画
-- ✅ 自定义模态框
-- ✅ 历史记录管理
-- ✅ 不重复抽取
-- ✅ 字号调节
-- ✅ 拖拽上传Excel文件
-
-### 🛡️ 非侵入式集成
-
-- 所有DOM元素ID/类名自动添加命名空间前缀
-- 所有CSS限定在`[data-pk-ns="..."]`作用域内
-- 不修改宿主页面任何内容
-- 完全销毁时清理所有资源（DOM、样式、定时器等）
-
-### ⚡ 懒加载策略
-
-- **初始状态**：不加载Vue、不执行业务逻辑、不注入CSS
-- **调用`initPKModule()`后**：
-  1. 创建带命名空间的容器DOM
-  2. 动态注入作用域CSS
-  3. 动态加载Vue 3（CDN）
-  4. 创建Vue应用并挂载
-  5. 初始化状态和事件监听
-
-### 🧹 资源清理
-
-调用`destroy()`方法可完全清理：
+### 2. 代码集成
 
 ```javascript
-const instance = window.initPKModule(config);
-// ...
-instance.destroy(); // 移除DOM、样式、定时器、事件监听等
+// 引入主模块
+import { initPKModule, loadPKMode, loadRouletteMode, loadAudioManager, applyFestivalTheme } from './core/module.js';
+
+// 初始化主系统
+const instance = await initPKModule({
+  target: '#pk-container',
+  namespace: 'my-namespace-',
+  autoStyleIsolation: true
+});
+
+// 懒加载PK模式
+const PKMode = await loadPKMode();
+const pkMode = new PKMode(document.getElementById('pk-mode-container'), {
+  namespace: 'pk-mode-',
+  autoStyleIsolation: true
+});
+
+// 懒加载转盘模式
+const RouletteMode = await loadRouletteMode();
+const rouletteMode = new RouletteMode(document.getElementById('roulette-container'), {
+  namespace: 'roulette-',
+  autoStyleIsolation: true
+});
+
+// 应用节日主题
+applyFestivalTheme('spring'); // 可选: 'spring', 'christmas', 'valentine', 'halloween'
+
+// 控制音效
+const audioManager = await loadAudioManager();
+audioManager.setEnabled(false); // 关闭音效
 ```
 
-### 🌐 浏览器兼容性
+## 技术特点
 
-- 支持现代浏览器（Chrome 79+, Firefox 78+, Safari 14+）
-- 需要ES6+支持
-- Vue 3运行时依赖
+1. **模块化设计**：各功能模块独立，便于维护和扩展
+2. **懒加载机制**：按需加载组件，提升性能
+3. **样式隔离**：支持命名空间，避免样式冲突
+4. **响应式设计**：适配不同屏幕尺寸
+5. **Web Audio API**：原生音频处理，无需额外依赖
+6. **节日主题**：动态切换UI主题，增强用户体验
 
-### 📦 技术栈
+## API 接口
 
-- Vue 3（动态加载）
-- 原生ES6+ JavaScript
-- 纯CSS（无预处理器）
-- XLSX.js（动态加载）
+### 主模块函数
 
----
+- `initPKModule(config)` - 初始化主系统
+- `loadPKMode()` - 懒加载PK模式
+- `loadRouletteMode()` - 懒加载转盘模式
+- `loadAudioManager()` - 懒加载音频管理器
+- `applyFestivalTheme(theme)` - 应用节日主题
 
-该重构实现了真正的懒加载插件化架构，可在任何页面中按需集成，首屏无负担，交互才加载，功能完整，零污染。
+### 组件方法
+
+- `PKMode.setPlayers(malePlayers, femalePlayers)` - 设置PK模式玩家
+- `RouletteMode.setPlayers(players)` - 设置转盘模式玩家
+- `RouletteMode.switchMode(mode)` - 切换转盘模式('flat' 或 '3d')
+- `AudioManager.setEnabled(enabled)` - 控制音效开关
+
+## 节日主题
+
+- `''` - 默认主题
+- `'spring'` - 春节主题
+- `'christmas'` - 圣诞节主题
+- `'valentine'` - 情人节主题
+- `'halloween'` - 万圣节主题
+
+## 浏览器兼容性
+
+- Chrome 60+
+- Firefox 55+
+- Safari 12+
+- Edge 79+
+
+## 性能优化
+
+1. 懒加载机制减少初始加载时间
+2. 模块化设计便于按需加载
+3. CSS动画替代JavaScript动画提升渲染性能
+4. Web Audio API实现高效音效处理
+
+## 开发说明
+
+本系统采用现代Web技术栈，所有新功能均遵循Web标准，无额外依赖，易于部署和维护。
