@@ -1,0 +1,94 @@
+/* 春节节日样式 */
+.festival-chinese-new-year {
+  background: linear-gradient(135deg, #c9302c 0%, #e47c7c 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-chinese-new-year::before {
+  content: "🧧";
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.festival-chinese-new-year::after {
+  content: "🏮";
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 2rem;
+  animation: float 4s ease-in-out infinite 0.5s;
+}
+
+.festival-chinese-new-year .container {
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid #c9302c;
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-chinese-new-year .container::before {
+  background: linear-gradient(90deg, #c9302c, #f39c12, #c9302c);
+  animation: gradientFlow 2s linear infinite;
+}
+
+.festival-chinese-new-year .display-area {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-chinese-new-year .display-area::before {
+  content: "🎊";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 1.5rem;
+  animation: float 2s ease-in-out infinite;
+}
+
+.festival-chinese-new-year .display-area::after {
+  content: "🧨";
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  animation: float 2.5s ease-in-out infinite 0.3s;
+}
+
+.festival-chinese-new-year .student-name {
+  color: #c9302c;
+  text-shadow: 0 0 10px rgba(201, 48, 44, 0.5);
+}
+
+.festival-chinese-new-year .student-id {
+  color: #2c3e50;
+}
+
+.festival-chinese-new-year .firework {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+.festival-chinese-new-year .mode-button {
+  background-color: rgba(243, 156, 18, 0.1);
+  border: 2px solid #c9302c;
+}
+
+.festival-chinese-new-year .mode-button.active {
+  background-color: rgba(201, 48, 44, 0.2);
+  border-color: #e74c3c;
+  box-shadow: 0 0 15px rgba(201, 48, 44, 0.5);
+}

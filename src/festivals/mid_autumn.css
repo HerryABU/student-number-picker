@@ -1,0 +1,95 @@
+/* 中秋节节日样式 */
+.festival-mid-autumn {
+  background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-mid-autumn::before {
+  content: "🎑";
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.festival-mid-autumn::after {
+  content: "🥮";
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 2rem;
+  animation: float 4s ease-in-out infinite 0.5s;
+}
+
+.festival-mid-autumn .container {
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid #8e44ad;
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-mid-autumn .container::before {
+  background: linear-gradient(90deg, #8e44ad, #f39c12, #8e44ad);
+  animation: gradientFlow 2s linear infinite;
+}
+
+.festival-mid-autumn .display-area {
+  background: linear-gradient(135deg, #f39c12 0%, #8e44ad 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-mid-autumn .display-area::before {
+  content: "🌕";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 1.5rem;
+  animation: float 2s ease-in-out infinite;
+}
+
+.festival-mid-autumn .display-area::after {
+  content: "🎑";
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  animation: float 2.5s ease-in-out infinite 0.3s;
+}
+
+.festival-mid-autumn .student-name {
+  color: #8e44ad;
+  text-shadow: 0 0 10px rgba(142, 68, 173, 0.5);
+}
+
+.festival-mid-autumn .student-id {
+  color: #2c3e50;
+}
+
+.festival-mid-autumn .moon {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: #f1c40f;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+.festival-mid-autumn .mode-button {
+  background-color: rgba(155, 89, 182, 0.1);
+  border: 2px solid #8e44ad;
+}
+
+.festival-mid-autumn .mode-button.active {
+  background-color: rgba(142, 68, 173, 0.2);
+  border-color: #9b59b6;
+  box-shadow: 0 0 15px rgba(142, 68, 173, 0.5);
+}

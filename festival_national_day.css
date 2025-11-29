@@ -1,0 +1,232 @@
+/* 国庆节主题样式 */
+.festival-national-day {
+    background: linear-gradient(135deg, #ff0000, #ffde00, #ff0000);
+    background-size: 400% 400%;
+    animation: nationalFlagWave 4s ease infinite;
+}
+
+@keyframes nationalFlagWave {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.festival-national-day .container {
+    border: 5px solid #ffde00;
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(255, 222, 0, 0.6);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.festival-national-day .title {
+    color: #ffde00;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-family: 'SimHei', '黑体', sans-serif;
+}
+
+.festival-national-day .result-box {
+    background: linear-gradient(145deg, #ff0000, #ffde00);
+    border: 3px solid #ffde00;
+}
+
+/* 国庆节装饰元素 */
+.star {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 17.3px solid #ffde00;
+    transform: rotate(36deg);
+    z-index: -1;
+}
+
+.star::before {
+    content: '';
+    position: absolute;
+    top: -8.65px;
+    left: -10px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 17.3px solid #ffde00;
+    transform: rotate(-72deg);
+}
+
+.star::after {
+    content: '';
+    position: absolute;
+    top: -8.65px;
+    left: -10px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 17.3px solid #ffde00;
+    transform: rotate(72deg);
+}
+
+.star:nth-child(1) {
+    top: 15%;
+    left: 15%;
+    animation: starTwinkle 2s ease-in-out infinite alternate;
+}
+
+.star:nth-child(2) {
+    top: 20%;
+    right: 20%;
+    animation: starTwinkle 2.5s ease-in-out infinite alternate 0.3s;
+}
+
+.star:nth-child(3) {
+    top: 35%;
+    left: 10%;
+    animation: starTwinkle 2.2s ease-in-out infinite alternate 0.6s;
+}
+
+.star:nth-child(4) {
+    bottom: 25%;
+    right: 15%;
+    animation: starTwinkle 2.7s ease-in-out infinite alternate 0.2s;
+}
+
+.star:nth-child(5) {
+    top: 10%;
+    left: 40%;
+    animation: starTwinkle 2.3s ease-in-out infinite alternate 0.8s;
+}
+
+@keyframes starTwinkle {
+    0% { opacity: 0.6; transform: rotate(36deg) scale(1); }
+    100% { opacity: 1; transform: rotate(36deg) scale(1.3); }
+}
+
+.firework {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #ff0000;
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.firework:nth-child(6) {
+    top: 25%;
+    left: 25%;
+    animation: fireworkExplode 1s ease-out infinite 0s;
+}
+
+.firework:nth-child(7) {
+    top: 30%;
+    right: 30%;
+    animation: fireworkExplode 1s ease-out infinite 0.5s;
+}
+
+.firework:nth-child(8) {
+    bottom: 30%;
+    left: 35%;
+    animation: fireworkExplode 1s ease-out infinite 1s;
+}
+
+@keyframes fireworkExplode {
+    0% {
+        transform: translateY(0);
+        width: 4px;
+        height: 4px;
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-50px);
+        width: 20px;
+        height: 20px;
+        opacity: 0;
+    }
+}
+
+.balloon {
+    position: absolute;
+    width: 30px;
+    height: 40px;
+    background: #ff0000;
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.balloon::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 30px;
+    background: #333;
+}
+
+.balloon:nth-child(9) {
+    top: 45%;
+    left: 5%;
+    animation: balloonFloat 8s ease-in-out infinite;
+}
+
+.balloon:nth-child(10) {
+    top: 60%;
+    right: 10%;
+    animation: balloonFloat 9s ease-in-out infinite 1s;
+}
+
+@keyframes balloonFloat {
+    0% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-50px) rotate(5deg); }
+    100% { transform: translateY(0) rotate(-5deg); }
+}
+
+.flag {
+    position: absolute;
+    width: 40px;
+    height: 25px;
+    background: #ff0000;
+    z-index: -1;
+}
+
+.flag::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-left: 15px solid #ffde00;
+    border-top: 12.5px solid transparent;
+    border-bottom: 12.5px solid transparent;
+}
+
+.flag::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 15px;
+    width: 5px;
+    height: 5px;
+    background: #ffde00;
+    border-radius: 50%;
+    transform: rotate(20deg);
+}
+
+.flag:nth-child(11) {
+    top: 55%;
+    left: 20%;
+    animation: flagWave 3s ease-in-out infinite;
+}
+
+.flag:nth-child(12) {
+    top: 70%;
+    right: 25%;
+    animation: flagWave 3.5s ease-in-out infinite 0.5s;
+}
+
+@keyframes flagWave {
+    0%, 100% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+}

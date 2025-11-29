@@ -1,0 +1,227 @@
+/* 圣诞节主题样式 */
+.festival-christmas {
+    background: linear-gradient(135deg, #c0392b, #27ae60, #c0392b);
+    background-size: 400% 400%;
+    animation: snowfall 10s ease infinite;
+}
+
+@keyframes snowfall {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+}
+
+.festival-christmas .container {
+    border: 5px solid #e74c3c;
+    border-radius: 20px;
+    box-shadow: 0 0 40px rgba(231, 76, 60, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.festival-christmas .title {
+    color: #27ae60;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    font-family: 'Arial', sans-serif;
+}
+
+.festival-christmas .result-box {
+    background: linear-gradient(145deg, #c0392b, #27ae60);
+    border: 3px solid #f1c40f;
+}
+
+/* 圣诞节装饰元素 */
+.christmas-tree {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 40px solid #27ae60;
+    z-index: -1;
+}
+
+.christmas-tree::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -15px;
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 30px solid #27ae60;
+}
+
+.christmas-tree::after {
+    content: '';
+    position: absolute;
+    top: -35px;
+    left: -10px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 20px solid #27ae60;
+}
+
+.christmas-tree {
+    bottom: 10%;
+    left: 15%;
+    animation: treeGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes treeGlow {
+    0% { filter: brightness(1); }
+    100% { filter: brightness(1.2); }
+}
+
+.snowflake {
+    position: absolute;
+    color: #fff;
+    font-size: 20px;
+    z-index: -1;
+}
+
+.snowflake:nth-child(1) {
+    top: -20px;
+    left: 10%;
+    animation: snowFall 8s linear infinite;
+}
+
+.snowflake:nth-child(2) {
+    top: -20px;
+    left: 30%;
+    animation: snowFall 10s linear infinite 1s;
+}
+
+.snowflake:nth-child(3) {
+    top: -20px;
+    left: 50%;
+    animation: snowFall 9s linear infinite 0.5s;
+}
+
+.snowflake:nth-child(4) {
+    top: -20px;
+    left: 70%;
+    animation: snowFall 11s linear infinite 1.5s;
+}
+
+.snowflake:nth-child(5) {
+    top: -20px;
+    left: 90%;
+    animation: snowFall 8.5s linear infinite 0.8s;
+}
+
+@keyframes snowFall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.santa-hat {
+    position: absolute;
+    width: 40px;
+    height: 25px;
+    background: #e74c3c;
+    border-radius: 50% 50% 0 0;
+    z-index: -1;
+}
+
+.santa-hat::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: -5px;
+    width: 15px;
+    height: 15px;
+    background: #fff;
+    border-radius: 50%;
+}
+
+.santa-hat:nth-child(7) {
+    top: 15%;
+    right: 20%;
+    animation: hatBob 3s ease-in-out infinite;
+}
+
+.santa-hat:nth-child(8) {
+    top: 35%;
+    left: 25%;
+    animation: hatBob 4s ease-in-out infinite 0.5s;
+}
+
+@keyframes hatBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.present {
+    position: absolute;
+    width: 35px;
+    height: 30px;
+    background: #e74c3c;
+    z-index: -1;
+}
+
+.present::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 100%;
+    background: #f1c40f;
+}
+
+.present::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #f1c40f;
+    transform: translateY(-50%);
+}
+
+.present:nth-child(9) {
+    bottom: 15%;
+    right: 20%;
+    animation: presentFloat 5s ease-in-out infinite;
+}
+
+.present:nth-child(10) {
+    top: 45%;
+    right: 10%;
+    animation: presentFloat 6s ease-in-out infinite 1s;
+}
+
+@keyframes presentFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(5deg); }
+}
+
+.candy-cane {
+    position: absolute;
+    width: 6px;
+    height: 40px;
+    background: linear-gradient(0deg, #fff 0%, #fff 20%, #c0392b 20%, #c0392b 40%, #fff 40%, #fff 60%, #c0392b 60%, #c0392b 80%, #fff 80%, #fff 100%);
+    border-radius: 3px;
+    z-index: -1;
+}
+
+.candy-cane:nth-child(11) {
+    top: 25%;
+    left: 5%;
+    animation: candySpin 8s linear infinite;
+}
+
+@keyframes candySpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

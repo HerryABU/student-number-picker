@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title> NB Roller - NB抽学号系统</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 800px;
+      width: 100%;
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .header {
+      margin-bottom: 30px;
+    }
+
+    .title {
+      color: #333;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 1.2em;
+    }
+
+    .input-section {
+      margin: 20px 0;
+    }
+
+    .file-input {
+      margin: 10px 0;
+    }
+
+    .btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: #5a6fd8;
+    }
+
+    .btn:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+
+    .btn-group {
+      margin: 20px 0;
+    }
+
+    .result-box {
+      margin: 30px auto;
+      padding: 30px;
+      border: 2px dashed #667eea;
+      border-radius: 10px;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      color: #333;
+      background: #f8f9fa;
+    }
+
+    .highlight {
+      animation: highlight 2s ease;
+      color: #ff6b6b;
+      font-weight: bold;
+    }
+
+    @keyframes highlight {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .settings {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 5px;
+    }
+
+    .setting-item {
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .setting-item label {
+      margin-right: 10px;
+    }
+
+    .gender-filter {
+      margin: 15px 0;
+    }
+
+    .mode-selector {
+      margin: 15px 0;
+    }
+
+    .wheel-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      height: 300px;
+      display: none;
+      z-index: 1000;
+    }
+
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: conic-gradient(
+        #ff6b6b 0deg 45deg,
+        #4ecdc4 45deg 90deg,
+        #45b7d1 90deg 135deg,
+        #96ceb4 135deg 180deg,
+        #feca57 180deg 225deg,
+        #ff9ff3 225deg 270deg,
+        #54a0ff 270deg 315deg,
+        #5f27cd 315deg 360deg
+      );
+      border: 5px solid #333;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      transition: transform 4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+    }
+
+    .festival-decoration {
+      position: fixed;
+      pointer-events: none;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="title">NB抽学号系统</h1>
+      <p class="subtitle">一个有趣且公平的随机抽选工具</p>
+    </div>
+
+    <div class="input-section">
+      <div class="file-input">
+        <label>上传Excel文件:</label>
+        <input type="file" id="fileInput" accept=".xlsx, .xls" />
+      </div>
+      <div>
+        <label>或输入姓名列表（用逗号或换行分隔）:</label>
+        <textarea id="nameInput" rows="4" cols="50" placeholder="请输入姓名，用逗号或换行分隔"></textarea>
+      </div>
+    </div>
+
+    <div class="settings">
+      <div class="setting-item">
+        <label for="soundToggle">音效:</label>
+        <input type="checkbox" id="soundToggle" checked />
+      </div>
+      <div class="setting-item">
+        <label for="ttsToggle">姓名播报:</label>
+        <input type="checkbox" id="ttsToggle" />
+      </div>
+      <div class="setting-item">
+        <label for="excitingToggle">惊心动魄模式:</label>
+        <input type="checkbox" id="excitingToggle" />
+      </div>
+      <div class="setting-item">
+        <label for="genderFilter">性别筛选:</label>
+        <select id="genderFilter">
+          <option value="all">全部</option>
+          <option value="male">男生</option>
+          <option value="female">女生</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label for="modeSelector">抽取模式:</label>
+        <select id="modeSelector">
+          <option value="normal">普通模式</option>
+          <option value="wheel">转盘模式</option>
+          <option value="wheel3d">3D转盘模式</option>
+          <option value="flipcard">翻卡片模式</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn" onclick="startDraw()">开始抽取</button>
+      <button class="btn" onclick="startPKMode()" id="pkBtn">PK模式</button>
+      <button class="btn" onclick="stopDraw()" id="stopBtn" style="display: none;">停止</button>
+      <button class="btn" onclick="resetSystem()">重置</button>
+    </div>
+
+    <div class="result-box" id="resultBox">
+      <p>等待抽取结果...</p>
+    </div>
+  </div>
+
+  <div class="wheel-container" id="wheelContainer">
+    <div class="wheel" id="wheel"></div>
+  </div>
+
+  <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="utils.js"></script>
+  <script src="audio.js"></script>
+  <script src="tts.js"></script>
+  <script src="wheel.js"></script>
+  <script src="flipcard.js"></script>
+  <script src="pk-mode.js"></script>
+  <script src="festival-manager.js"></script>
+  <script>
+    // 全局变量
+    let names = [];
+    let allNames = [];
+    let maleNames = [];
+    let femaleNames = [];
+    let currentNames = [];
+    let isDrawing = false;
+    let drawInterval = null;
+    let drawHistory = [];
+    let currentFestival = null;
+
+    // 初始化
+    document.addEventListener("DOMContentLoaded", function() {
+      loadSettings();
+      setupEventListeners();
+    });
+
+    // 从Excel读取数据
+    function readExcel(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        // 使用工具函数分离性别
+        const { maleNames: extractedMaleNames, femaleNames: extractedFemaleNames, allNames: extractedAllNames } = Utils.separateGender(jsonData, 1);
+
+        names = extractedAllNames;
+        maleNames = extractedMaleNames;
+        femaleNames = extractedFemaleNames;
+        allNames = [...names];
+
+        updateCurrentNames();
+        showMessage("Excel文件读取成功！共" + names.length + "个名字");
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // 更新当前可用的姓名列表
+    function updateCurrentNames() {
+      const genderFilter = document.getElementById('genderFilter').value;
+      switch(genderFilter) {
+        case 'male':
+          currentNames = [...maleNames];
+          break;
+        case 'female':
+          currentNames = [...femaleNames];
+          break;
+        default:
+          currentNames = [...names];
+      }
+    }
+
+    // 显示消息
+    function showMessage(message) {
+      const resultBox = document.getElementById('resultBox');
+      resultBox.innerHTML = `<p style="color: #28a745;">${message}</p>`;
+    }
+
+    // 开始抽取
+    async function startDraw() {
+      if (currentNames.length === 0) {
+        showMessage("没有可抽取的姓名，请先上传文件或输入姓名！");
+        return;
+      }
+
+      const mode = document.getElementById('modeSelector').value;
+      
+      if (mode === 'wheel') {
+        spinWheel();
+        return;
+      } else if (mode === 'wheel3d') {
+        spin3DWheel();
+        return;
+      } else if (mode === 'flipcard') {
+        performFlipCardDraw();
+        return;
+      }
+
+      isDrawing = true;
+      document.getElementById('stopBtn').style.display = 'inline-block';
+      // Note: startBtn is not defined in HTML, so we won't manipulate it
+
+      const resultBox = document.getElementById('resultBox');
+      const excitingMode = document.getElementById('excitingToggle').checked;
+
+      if (excitingMode) {
+        // 惊心动魄模式
+        let iterations = 0;
+        const maxIterations = 100;
+        
+        drawInterval = setInterval(() => {
+          if (iterations < maxIterations) {
+            const randomName = currentNames[Math.floor(Math.random() * currentNames.length)];
+            resultBox.innerHTML = `<p>${randomName}</p>`;
+            iterations++;
+          } else {
+            clearInterval(drawInterval);
+            finalDraw();
+          }
+        }, 50);
+      } else {
+        // 普通模式
+        drawInterval = setInterval(() => {
+          const randomName = currentNames[Math.floor(Math.random() * currentNames.length)];
+          resultBox.innerHTML = `<p>${randomName}</p>`;
+        }, 100);
+      }
+    }
+
+    // 最终抽取结果
+    function finalDraw() {
+      isDrawing = false;
+      clearInterval(drawInterval);
+      document.getElementById('stopBtn').style.display = 'none';
+
+      const winner = currentNames[Math.floor(Math.random() * currentNames.length)];
+      
+      // 播放音效
+      audioManager.playDrawSound();
+      ttsManager.speakName(winner);
+
+      // 显示结果
+      const resultBox = document.getElementById('resultBox');
+      resultBox.innerHTML = `<p class="highlight">${winner}</p>`;
+      resultBox.classList.add('highlight');
+      setTimeout(() => {
+        resultBox.classList.remove('highlight');
+      }, 2000);
+
+      // 添加到历史记录
+      drawHistory.push({
+        name: winner,
+        time: new Date().toLocaleString(),
+        gender: getGenderByName(winner)
+      });
+    }
+
+    // 获取姓名对应的性别
+    function getGenderByName(name) {
+      if (maleNames.includes(name)) return '男';
+      if (femaleNames.includes(name)) return '女';
+      return '未知';
+    }
+
+    // 停止抽取
+    function stopDraw() {
+      if (isDrawing) {
+        finalDraw();
+      }
+    }
+
+    // 转盘模式
+    function spinWheel() {
+      if (currentNames.length === 0) {
+        showMessage("没有可抽取的姓名，请先上传文件或输入姓名！");
+        return;
+      }
+
+      audioManager.playWheelSound();
+
+      const wheel = document.getElementById('wheel');
+      const wheelContainer = document.getElementById('wheelContainer');
+      wheelContainer.style.display = 'block';
+
+      // 使用wheelManager进行转盘抽取
+      wheelManager.spinFlatWheel(currentNames, (winner) => {
+        audioManager.playDrawSound();
+        ttsManager.speakName(winner);
+
+        // 显示结果
+        const resultBox = document.getElementById('resultBox');
+        resultBox.innerHTML = `<p class="highlight">${winner}</p>`;
+        resultBox.classList.add('highlight');
+        setTimeout(() => {
+          resultBox.classList.remove('highlight');
+        }, 2000);
+
+        // 添加到历史记录
+        drawHistory.push({
+          name: winner,
+          time: new Date().toLocaleString(),
+          gender: getGenderByName(winner)
+        });
+      });
+    }
+
+    // 3D转盘模式
+    function spin3DWheel() {
+      if (currentNames.length === 0) {
+        showMessage("没有可抽取的姓名，请先上传文件或输入姓名！");
+        return;
+      }
+
+      audioManager.playWheelSound();
+
+      // 使用wheelManager进行3D转盘抽取
+      wheelManager.spin3DWheel(currentNames, (winner) => {
+        audioManager.playDrawSound();
+        ttsManager.speakName(winner);
+
+        // 显示结果
+        const resultBox = document.getElementById('resultBox');
+        resultBox.innerHTML = `<p class="highlight">${winner}</p>`;
+        resultBox.classList.add('highlight');
+        setTimeout(() => {
+          resultBox.classList.remove('highlight');
+        }, 2000);
+
+        // 添加到历史记录
+        drawHistory.push({
+          name: winner,
+          time: new Date().toLocaleString(),
+          gender: getGenderByName(winner)
+        });
+      });
+    }
+
+    // 翻卡片模式
+    function performFlipCardDraw() {
+      if (currentNames.length === 0) {
+        showMessage("没有可抽取的姓名，请先上传文件或输入姓名！");
+        return;
+      }
+
+      // 使用flipCardManager进行翻卡片抽取
+      flipCardManager.performFlipCardDraw(currentNames, (winner) => {
+        audioManager.playDrawSound();
+        ttsManager.speakName(winner);
+
+        // 显示结果
+        const resultBox = document.getElementById('resultBox');
+        resultBox.innerHTML = `<p class="highlight">${winner}</p>`;
+        resultBox.classList.add('highlight');
+        setTimeout(() => {
+          resultBox.classList.remove('highlight');
+        }, 2000);
+
+        // 添加到历史记录
+        drawHistory.push({
+          name: winner,
+          time: new Date().toLocaleString(),
+          gender: getGenderByName(winner)
+        });
+      });
+    }
+
+    // PK模式
+    function startPKMode() {
+      if (maleNames.length === 0 || femaleNames.length === 0) {
+        showMessage("PK模式需要同时有男生和女生姓名！");
+        return;
+      }
+
+      audioManager.playPKSound();
+
+      // 使用pkModeManager启动PK模式
+      pkModeManager.startPKMode(maleNames, femaleNames);
+    }
+
+    // 重置系统
+    function resetSystem() {
+      names = [];
+      maleNames = [];
+      femaleNames = [];
+      allNames = [];
+      currentNames = [];
+      drawHistory = [];
+      
+      document.getElementById('fileInput').value = '';
+      document.getElementById('nameInput').value = '';
+      
+      const resultBox = document.getElementById('resultBox');
+      resultBox.innerHTML = '<p>等待抽取结果...</p>';
+      
+      showMessage("系统已重置");
+    }
+
+    // 加载设置
+    function loadSettings() {
+      initSoundSettings();
+      initTTSSettings();
+      
+      const savedExcitingSetting = localStorage.getItem('excitingMode');
+      if (savedExcitingSetting !== null) {
+        document.getElementById('excitingToggle').checked = savedExcitingSetting === 'true';
+      }
+    }
+
+    // 设置事件监听器
+    function setupEventListeners() {
+      // 文件输入事件
+      document.getElementById('fileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          readExcel(file);
+        }
+      });
+
+      // 姓名输入事件
+      document.getElementById('nameInput').addEventListener('input', function(e) {
+        const nameText = e.target.value;
+        if (nameText.trim()) {
+          names = nameText.split(/[,\n，、\r]/).map(name => name.trim()).filter(name => name);
+          maleNames = []; // 简化处理，手动输入不区分性别
+          femaleNames = [];
+          allNames = [...names];
+          currentNames = [...names];
+          showMessage(`输入成功！共${names.length}个名字`);
+        }
+      });
+
+      // 性别筛选变化事件
+      document.getElementById('genderFilter').addEventListener('change', function() {
+        updateCurrentNames();
+      });
+
+      // 音效开关事件
+      document.getElementById('soundToggle').addEventListener('change', function() {
+        toggleSound();
+      });
+
+      // TTS开关事件
+      document.getElementById('ttsToggle').addEventListener('change', function() {
+        toggleTTS();
+      });
+
+      // 惊心动魄模式开关事件
+      document.getElementById('excitingToggle').addEventListener('change', function() {
+        localStorage.setItem('excitingMode', this.checked);
+      });
+    }
+
+    // 自动检测节日并应用主题
+    function autoDetectFestival() {
+      festivalManager.autoDetectFestival();
+    }
+
+    // 初始化时检测节日
+    autoDetectFestival();
+  </script>
+</body>
+</html>

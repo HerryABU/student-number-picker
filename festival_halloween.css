@@ -1,0 +1,264 @@
+/* 万圣节主题样式 */
+.festival-halloween {
+    background: linear-gradient(135deg, #8e44ad, #e74c3c, #f39c12);
+    background-size: 400% 400%;
+    animation: halloweenGlow 6s ease infinite;
+}
+
+@keyframes halloweenGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.festival-halloween .container {
+    border: 5px solid #f39c12;
+    border-radius: 25px;
+    box-shadow: 0 0 40px rgba(243, 156, 18, 0.5);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.festival-halloween .title {
+    color: #f39c12;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-family: 'Creepster', cursive, sans-serif;
+}
+
+.festival-halloween .result-box {
+    background: linear-gradient(145deg, #8e44ad, #e74c3c);
+    border: 3px solid #f39c12;
+}
+
+/* 万圣节装饰元素 */
+.pumpkin {
+    position: absolute;
+    width: 50px;
+    height: 60px;
+    background: #f39c12;
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.pumpkin::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 15px;
+    background: #27ae60;
+    border-radius: 50% 50% 0 0;
+}
+
+.pumpkin::after {
+    content: '🎃';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+}
+
+.pumpkin:nth-child(1) {
+    top: 15%;
+    left: 20%;
+    animation: pumpkinBob 4s ease-in-out infinite;
+}
+
+.pumpkin:nth-child(2) {
+    top: 30%;
+    right: 25%;
+    animation: pumpkinBob 5s ease-in-out infinite 0.5s;
+}
+
+.pumpkin:nth-child(3) {
+    bottom: 20%;
+    left: 30%;
+    animation: pumpkinBob 4.5s ease-in-out infinite 0.3s;
+}
+
+@keyframes pumpkinBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.ghost {
+    position: absolute;
+    width: 40px;
+    height: 50px;
+    background: #ecf0f1;
+    border-radius: 50% 50% 0 0;
+    z-index: -1;
+}
+
+.ghost::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 8px;
+    height: 8px;
+    background: #333;
+    border-radius: 50%;
+}
+
+.ghost::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
+    background: #333;
+    border-radius: 50%;
+}
+
+.ghost:nth-child(4) {
+    top: 25%;
+    left: 40%;
+    animation: ghostFloat 6s ease-in-out infinite;
+}
+
+.ghost:nth-child(5) {
+    top: 45%;
+    right: 40%;
+    animation: ghostFloat 7s ease-in-out infinite 1s;
+}
+
+@keyframes ghostFloat {
+    0%, 100% { transform: translateY(0) translateX(0); }
+    25% { transform: translateY(-20px) translateX(10px); }
+    50% { transform: translateY(0) translateX(20px); }
+    75% { transform: translateY(-10px) translateX(10px); }
+}
+
+.bat {
+    position: absolute;
+    width: 30px;
+    height: 15px;
+    background: #333;
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.bat::before, .bat::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    width: 20px;
+    height: 10px;
+    background: #333;
+    border-radius: 50%;
+}
+
+.bat::before {
+    left: -15px;
+    transform: rotate(-20deg);
+}
+
+.bat::after {
+    right: -15px;
+    transform: rotate(20deg);
+}
+
+.bat:nth-child(6) {
+    top: 10%;
+    right: 10%;
+    animation: batFly 8s linear infinite;
+}
+
+.bat:nth-child(7) {
+    top: 40%;
+    left: 5%;
+    animation: batFly 9s linear infinite 2s;
+}
+
+@keyframes batFly {
+    0% { transform: translateX(0) translateY(0) rotate(0deg); }
+    25% { transform: translateX(100vw) translateY(-20px) rotate(45deg); }
+    50% { transform: translateX(0) translateY(0) rotate(90deg); }
+    75% { transform: translateX(-100vw) translateY(20px) rotate(135deg); }
+    100% { transform: translateX(0) translateY(0) rotate(180deg); }
+}
+
+.spider {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: #333;
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.spider::before, .spider::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 15px;
+    background: #333;
+}
+
+.spider::before {
+    top: -10px;
+    left: 0;
+}
+
+.spider::after {
+    bottom: -10px;
+    right: 0;
+}
+
+.spider:nth-child(8) {
+    top: 55%;
+    left: 15%;
+    animation: spiderCrawl 10s linear infinite;
+}
+
+@keyframes spiderCrawl {
+    0% { transform: translate(0, 0); }
+    25% { transform: translate(50px, 30px); }
+    50% { transform: translate(100px, 0); }
+    75% { transform: translate(150px, -30px); }
+    100% { transform: translate(200px, 0); }
+}
+
+.cauldron {
+    position: absolute;
+    width: 45px;
+    height: 30px;
+    background: #7f8c8d;
+    border-radius: 0 0 50% 50%;
+    z-index: -1;
+}
+
+.cauldron::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: #5d6d7e;
+}
+
+.cauldron::after {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: 5px;
+    right: 5px;
+    height: 3px;
+    background: #5d6d7e;
+}
+
+.cauldron:nth-child(9) {
+    bottom: 15%;
+    right: 20%;
+    animation: cauldronBubble 4s ease-in-out infinite;
+}
+
+@keyframes cauldronBubble {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}

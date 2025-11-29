@@ -1,0 +1,136 @@
+/* 春节主题样式 */
+.festival-chinese-new-year {
+    background: linear-gradient(135deg, #ff6b6b, #ffd166, #ef476f);
+    background-size: 400% 400%;
+    animation: festivalGradient 4s ease infinite;
+}
+
+@keyframes festivalGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.festival-chinese-new-year .container {
+    border: 5px solid #d4af37;
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.festival-chinese-new-year .title {
+    color: #ff4d4d;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    font-family: 'KaiTi', '楷体', serif;
+}
+
+.festival-chinese-new-year .result-box {
+    background: linear-gradient(145deg, #ff6b6b, #ffd166);
+    border: 3px solid #d4af37;
+}
+
+/* 春节装饰元素 */
+.lantern {
+    position: absolute;
+    width: 40px;
+    height: 60px;
+    background: radial-gradient(circle at 50% 20%, #ff4d4d, #b30000);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.lantern::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 20px;
+    background: #d4af37;
+}
+
+.lantern::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 4px;
+    background: #d4af37;
+}
+
+.lantern:nth-child(1) {
+    top: 10%;
+    left: 10%;
+    animation: lanternSwing 3s ease-in-out infinite;
+}
+
+.lantern:nth-child(2) {
+    top: 15%;
+    right: 15%;
+    animation: lanternSwing 4s ease-in-out infinite 0.5s;
+}
+
+@keyframes lanternSwing {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+}
+
+.firecracker {
+    position: absolute;
+    width: 8px;
+    height: 30px;
+    background: #ff4d4d;
+    z-index: -1;
+}
+
+.firecracker::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 10px;
+    background: #ffa500;
+}
+
+.firecracker:nth-child(3) {
+    top: 25%;
+    left: 25%;
+    animation: firecracker 0.5s ease infinite alternate;
+}
+
+.firecracker:nth-child(4) {
+    top: 35%;
+    right: 25%;
+    animation: firecracker 0.6s ease infinite alternate 0.2s;
+}
+
+@keyframes firecracker {
+    0% { transform: scaleY(1); opacity: 1; }
+    100% { transform: scaleY(1.2) rotate(5deg); opacity: 0.7; }
+}
+
+/* 福字装饰 */
+.fu {
+    position: absolute;
+    font-size: 2rem;
+    color: #d4af37;
+    font-weight: bold;
+    transform: rotate(-15deg);
+    z-index: -1;
+}
+
+.fu:nth-child(5) {
+    top: 40%;
+    left: 5%;
+}
+
+.fu:nth-child(6) {
+    top: 60%;
+    right: 10%;
+    transform: rotate(20deg);
+}

@@ -1,0 +1,95 @@
+/* 万圣节节日样式 */
+.festival-halloween {
+  background: linear-gradient(135deg, #8e44ad 0%, #e67e22 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-halloween::before {
+  content: "🎃";
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.festival-halloween::after {
+  content: "👻";
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 2rem;
+  animation: float 4s ease-in-out infinite 0.5s;
+}
+
+.festival-halloween .container {
+  background: rgba(0, 0, 0, 0.8);
+  border: 3px solid #e67e22;
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-halloween .container::before {
+  background: linear-gradient(90deg, #e74c3c, #e67e22, #8e44ad);
+  animation: gradientFlow 2s linear infinite;
+}
+
+.festival-halloween .display-area {
+  background: linear-gradient(135deg, #8e44ad 0%, #e67e22 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-halloween .display-area::before {
+  content: "🦇";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 1.5rem;
+  animation: float 2s ease-in-out infinite;
+}
+
+.festival-halloween .display-area::after {
+  content: "🕷️";
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  animation: float 2.5s ease-in-out infinite 0.3s;
+}
+
+.festival-halloween .student-name {
+  color: #e67e22;
+  text-shadow: 0 0 10px rgba(230, 126, 34, 0.5);
+}
+
+.festival-halloween .student-id {
+  color: #f1c40f;
+}
+
+.festival-halloween .bat {
+  position: absolute;
+  width: 20px;
+  height: 15px;
+  background: #000;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+.festival-halloween .mode-button {
+  background-color: rgba(142, 68, 173, 0.1);
+  border: 2px solid #8e44ad;
+}
+
+.festival-halloween .mode-button.active {
+  background-color: rgba(230, 126, 34, 0.2);
+  border-color: #e67e22;
+  box-shadow: 0 0 15px rgba(230, 126, 34, 0.5);
+}

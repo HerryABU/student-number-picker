@@ -1,0 +1,95 @@
+/* 重阳节节日样式 */
+.festival-double-ninth {
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-double-ninth::before {
+  content: "登山";
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.festival-double-ninth::after {
+  content: "菊花";
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 2rem;
+  animation: float 4s ease-in-out infinite 0.5s;
+}
+
+.festival-double-ninth .container {
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid #e67e22;
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-double-ninth .container::before {
+  background: linear-gradient(90deg, #e67e22, #f39c12, #e67e22);
+  animation: gradientFlow 2s linear infinite;
+}
+
+.festival-double-ninth .display-area {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-double-ninth .display-area::before {
+  content: "🏔️";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 1.5rem;
+  animation: float 2s ease-in-out infinite;
+}
+
+.festival-double-ninth .display-area::after {
+  content: "🌼";
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  animation: float 2.5s ease-in-out infinite 0.3s;
+}
+
+.festival-double-ninth .student-name {
+  color: #e67e22;
+  text-shadow: 0 0 10px rgba(230, 126, 34, 0.5);
+}
+
+.festival-double-ninth .student-id {
+  color: #2c3e50;
+}
+
+.festival-double-ninth .chrysanthemum {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  background: #f1c40f;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+.festival-double-ninth .mode-button {
+  background-color: rgba(230, 126, 34, 0.1);
+  border: 2px solid #e67e22;
+}
+
+.festival-double-ninth .mode-button.active {
+  background-color: rgba(211, 84, 0, 0.2);
+  border-color: #d35400;
+  box-shadow: 0 0 15px rgba(230, 126, 34, 0.5);
+}

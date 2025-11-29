@@ -1,0 +1,178 @@
+/* 重阳节主题样式 */
+.festival-double-ninth {
+    background: linear-gradient(135deg, #e74c3c, #f39c12, #27ae60);
+    background-size: 400% 400%;
+    animation: chrysanthemumBloom 5s ease infinite;
+}
+
+@keyframes chrysanthemumBloom {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.festival-double-ninth .container {
+    border: 5px solid #e67e22;
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(230, 126, 34, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.festival-double-ninth .title {
+    color: #e67e22;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    font-family: 'KaiTi', '楷体', serif;
+}
+
+.festival-double-ninth .result-box {
+    background: linear-gradient(145deg, #e74c3c, #f39c12);
+    border: 3px solid #e67e22;
+}
+
+/* 重阳节装饰元素 */
+.chrysanthemum {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: radial-gradient(circle, #f1c40f, #f39c12);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.chrysanthemum::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 2px solid #d35400;
+    border-radius: 50%;
+    animation: chrysanthemumRotate 8s linear infinite;
+}
+
+.chrysanthemum::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, transparent 30%, #f1c40f 30%, #f1c40f 40%, transparent 40%);
+    border-radius: 50%;
+    transform: rotate(45deg);
+}
+
+.chrysanthemum:nth-child(1) {
+    top: 15%;
+    left: 20%;
+    animation: chrysanthemumFloat 6s ease-in-out infinite;
+}
+
+.chrysanthemum:nth-child(2) {
+    top: 25%;
+    right: 25%;
+    animation: chrysanthemumFloat 7s ease-in-out infinite 1s;
+}
+
+.chrysanthemum:nth-child(3) {
+    bottom: 20%;
+    left: 25%;
+    animation: chrysanthemumFloat 6s ease-in-out infinite 0.5s;
+}
+
+@keyframes chrysanthemumFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(10deg); }
+}
+
+@keyframes chrysanthemumRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.mountain {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    border-bottom: 50px solid #7f8c8d;
+    z-index: -1;
+}
+
+.mountain:nth-child(4) {
+    bottom: 0;
+    left: 10%;
+    animation: mountainRise 4s ease infinite alternate;
+}
+
+.mountain:nth-child(5) {
+    bottom: 0;
+    right: 15%;
+    animation: mountainRise 5s ease infinite alternate 0.5s;
+}
+
+@keyframes mountainRise {
+    0% { transform: scaleY(1); }
+    100% { transform: scaleY(1.1); }
+}
+
+.drink {
+    position: absolute;
+    width: 20px;
+    height: 35px;
+    background: #d35400;
+    border-radius: 5px 5px 0 0;
+    z-index: -1;
+}
+
+.drink::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    background: #e67e22;
+    border-radius: 50%;
+}
+
+.drink:nth-child(6) {
+    top: 40%;
+    right: 10%;
+    animation: drinkWobble 3s ease-in-out infinite;
+}
+
+@keyframes drinkWobble {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+}
+
+.leaf {
+    position: absolute;
+    width: 25px;
+    height: 30px;
+    background: #27ae60;
+    border-radius: 50% 0;
+    transform: rotate(45deg);
+    z-index: -1;
+}
+
+.leaf:nth-child(7) {
+    top: 55%;
+    left: 15%;
+    animation: leafFall 8s linear infinite;
+}
+
+.leaf:nth-child(8) {
+    top: 35%;
+    right: 35%;
+    animation: leafFall 9s linear infinite 2s;
+}
+
+@keyframes leafFall {
+    0% { transform: rotate(45deg) translateY(-100vh) rotate(0deg); }
+    100% { transform: rotate(45deg) translateY(100vh) rotate(360deg); }
+}

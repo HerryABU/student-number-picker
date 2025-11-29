@@ -1,0 +1,94 @@
+/* 国庆节节日样式 */
+.festival-national-day {
+  background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-national-day::before {
+  content: "🇨🇳";
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.festival-national-day::after {
+  content: "🎉";
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 2rem;
+  animation: float 4s ease-in-out infinite 0.5s;
+}
+
+.festival-national-day .container {
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid #c0392b;
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-national-day .container::before {
+  background: linear-gradient(90deg, #c0392b, #f1c40f, #c0392b);
+  animation: gradientFlow 2s linear infinite;
+}
+
+.festival-national-day .display-area {
+  background: linear-gradient(135deg, #f1c40f 0%, #c0392b 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-national-day .display-area::before {
+  content: " fireworks ";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 1.5rem;
+  animation: float 2s ease-in-out infinite;
+}
+
+.festival-national-day .display-area::after {
+  content: "🎆";
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  animation: float 2.5s ease-in-out infinite 0.3s;
+}
+
+.festival-national-day .student-name {
+  color: #c0392b;
+  text-shadow: 0 0 10px rgba(192, 57, 43, 0.5);
+}
+
+.festival-national-day .student-id {
+  color: #2c3e50;
+}
+
+.festival-national-day .national-flag {
+  position: absolute;
+  width: 30px;
+  height: 20px;
+  background: linear-gradient(to right, #de2910 33%, #ffde00 33%, #ffde00 44%, #de2910 44%, #de2910 55%, #ffde00 55%, #ffde00 66%, #de2910 66%);
+  pointer-events: none;
+  opacity: 0;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+.festival-national-day .mode-button {
+  background-color: rgba(231, 76, 60, 0.1);
+  border: 2px solid #c0392b;
+}
+
+.festival-national-day .mode-button.active {
+  background-color: rgba(192, 57, 43, 0.2);
+  border-color: #e74c3c;
+  box-shadow: 0 0 15px rgba(192, 57, 43, 0.5);
+}

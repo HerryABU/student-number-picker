@@ -1,0 +1,135 @@
+/* 端午节主题样式 */
+.festival-dragon-boat {
+    background: linear-gradient(135deg, #3a86ff, #32cd32, #ff0000);
+    background-size: 400% 400%;
+    animation: dragonBoatWave 6s ease infinite;
+}
+
+@keyframes dragonBoatWave {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.festival-dragon-boat .container {
+    border: 5px solid #964B00;
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(150, 75, 0, 0.5);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.festival-dragon-boat .title {
+    color: #964B00;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    font-family: 'SimSun', '宋体', serif;
+}
+
+.festival-dragon-boat .result-box {
+    background: linear-gradient(145deg, #3a86ff, #32cd32);
+    border: 3px solid #964B00;
+}
+
+/* 端午节装饰元素 */
+.dragon-boat {
+    position: absolute;
+    width: 80px;
+    height: 30px;
+    background: #964B00;
+    border-radius: 50% 50% 0 0;
+    z-index: -1;
+}
+
+.dragon-boat::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: 10px;
+    width: 20px;
+    height: 20px;
+    background: #ff6b6b;
+    border-radius: 50%;
+}
+
+.dragon-boat::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: 10px;
+    width: 15px;
+    height: 25px;
+    background: #4a90e2;
+    transform: rotate(-15deg);
+}
+
+.dragon-boat:nth-child(1) {
+    top: 10%;
+    left: 15%;
+    animation: dragonBoatFloat 4s ease-in-out infinite;
+}
+
+.dragon-boat:nth-child(2) {
+    top: 25%;
+    right: 20%;
+    animation: dragonBoatFloat 5s ease-in-out infinite 1s;
+}
+
+@keyframes dragonBoatFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+.zongzi {
+    position: absolute;
+    width: 30px;
+    height: 40px;
+    background: linear-gradient(45deg, #228B22, #32CD32);
+    border-radius: 5px;
+    z-index: -1;
+}
+
+.zongzi::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    height: 5px;
+    background: #8B4513;
+}
+
+.zongzi:nth-child(3) {
+    top: 40%;
+    left: 10%;
+    animation: zongziBob 3s ease-in-out infinite;
+}
+
+.zongzi:nth-child(4) {
+    top: 55%;
+    right: 15%;
+    animation: zongziBob 4s ease-in-out infinite 0.5s;
+}
+
+@keyframes zongziBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.river-wave {
+    position: absolute;
+    height: 8px;
+    background: rgba(0, 191, 255, 0.6);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.river-wave:nth-child(5) {
+    top: 70%;
+    left: 0;
+    right: 0;
+    animation: waveFlow 8s linear infinite;
+}
+
+@keyframes waveFlow {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}

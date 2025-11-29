@@ -1,0 +1,95 @@
+/* 端午节节日样式 */
+.festival-dragon-boat {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-dragon-boat::before {
+  content: "🎏";
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.festival-dragon-boat::after {
+  content: "粽";
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 2rem;
+  animation: float 4s ease-in-out infinite 0.5s;
+}
+
+.festival-dragon-boat .container {
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid #27ae60;
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-dragon-boat .container::before {
+  background: linear-gradient(90deg, #27ae60, #2ecc71, #27ae60);
+  animation: gradientFlow 2s linear infinite;
+}
+
+.festival-dragon-boat .display-area {
+  background: linear-gradient(135deg, #3498db 0%, #2ecc71 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-dragon-boat .display-area::before {
+  content: "🚣";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 1.5rem;
+  animation: float 2s ease-in-out infinite;
+}
+
+.festival-dragon-boat .display-area::after {
+  content: "🌿";
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  animation: float 2.5s ease-in-out infinite 0.3s;
+}
+
+.festival-dragon-boat .student-name {
+  color: #27ae60;
+  text-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
+}
+
+.festival-dragon-boat .student-id {
+  color: #2c3e50;
+}
+
+.festival-dragon-boat .dragon-boat {
+  position: absolute;
+  width: 40px;
+  height: 20px;
+  background: #e67e22;
+  border-radius: 10px 10px 0 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+.festival-dragon-boat .mode-button {
+  background-color: rgba(46, 204, 113, 0.1);
+  border: 2px solid #27ae60;
+}
+
+.festival-dragon-boat .mode-button.active {
+  background-color: rgba(39, 174, 96, 0.2);
+  border-color: #2ecc71;
+  box-shadow: 0 0 15px rgba(39, 174, 96, 0.5);
+}

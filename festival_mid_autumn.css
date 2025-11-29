@@ -1,0 +1,194 @@
+/* 中秋节主题样式 */
+.festival-mid-autumn {
+    background: linear-gradient(135deg, #2c3e50, #4a235a, #1a237e);
+    background-size: 400% 400%;
+    animation: moonlightGlow 8s ease infinite;
+}
+
+@keyframes moonlightGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.festival-mid-autumn .container {
+    border: 5px solid #f1c40f;
+    border-radius: 25px;
+    box-shadow: 0 0 40px rgba(241, 196, 15, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.festival-mid-autumn .title {
+    color: #f1c40f;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-family: 'KaiTi', '楷体', serif;
+}
+
+.festival-mid-autumn .result-box {
+    background: linear-gradient(145deg, #f1c40f, #e67e22);
+    border: 3px solid #f1c40f;
+}
+
+/* 中秋节装饰元素 */
+.moon {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #f9f9f9, #d3d3d3);
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(249, 249, 249, 0.6);
+    z-index: -1;
+}
+
+.moon::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 10px;
+    height: 10px;
+    background: #a9a9a9;
+    border-radius: 50%;
+}
+
+.moon::after {
+    content: '';
+    position: absolute;
+    top: 40px;
+    right: 25px;
+    width: 8px;
+    height: 8px;
+    background: #a9a9a9;
+    border-radius: 50%;
+}
+
+.moon {
+    top: 10%;
+    right: 15%;
+    animation: moonGlow 6s ease-in-out infinite alternate;
+}
+
+@keyframes moonGlow {
+    0% { transform: scale(1); box-shadow: 0 0 20px rgba(249, 249, 249, 0.4); }
+    100% { transform: scale(1.1); box-shadow: 0 0 40px rgba(249, 249, 249, 0.8); }
+}
+
+.rabbit {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: #ffffff;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    z-index: -1;
+}
+
+.rabbit::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 8px;
+    height: 8px;
+    background: #333;
+    border-radius: 50%;
+}
+
+.rabbit::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 12px;
+    height: 6px;
+    background: #ff6b6b;
+    border-radius: 50%;
+}
+
+.rabbit {
+    top: 30%;
+    left: 15%;
+    animation: rabbitJump 3s ease-in-out infinite;
+}
+
+@keyframes rabbitJump {
+    0%, 100% { transform: rotate(-45deg) translateY(0); }
+    50% { transform: rotate(-45deg) translateY(-15px); }
+}
+
+.lantern-mid-autumn {
+    position: absolute;
+    width: 30px;
+    height: 50px;
+    background: radial-gradient(circle at 50% 20%, #f1c40f, #e67e22);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.lantern-mid-autumn::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 15px;
+    background: #d4af37;
+}
+
+.lantern-mid-autumn::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 15px;
+    height: 3px;
+    background: #d4af37;
+}
+
+.lantern-mid-autumn:nth-child(4) {
+    top: 20%;
+    left: 30%;
+    animation: lanternSwing 4s ease-in-out infinite;
+}
+
+.lantern-mid-autumn:nth-child(5) {
+    top: 45%;
+    right: 25%;
+    animation: lanternSwing 5s ease-in-out infinite 0.5s;
+}
+
+@keyframes lanternSwing {
+    0%, 100% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+}
+
+.cake {
+    position: absolute;
+    width: 35px;
+    height: 35px;
+    background: #e67e22;
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.cake::before {
+    content: '🥮';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+}
+
+.cake {
+    top: 55%;
+    left: 25%;
+    animation: cakeFloat 4s ease-in-out infinite;
+}
+
+@keyframes cakeFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+}
