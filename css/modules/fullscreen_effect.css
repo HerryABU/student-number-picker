@@ -1,0 +1,43 @@
+/* fullscreen_effect 模块 */
+/* 连抽/批量抽取全屏效果 */
+    .multi-draw-effect {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      animation: fadeIn 0.3s;
+    }
+    /* 全屏效果中的数字 */
+    .effect-number {
+      font-size: 120px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 0 20px #ff0076;
+      animation: zoomInOut 0.8s infinite alternate;
+      margin-bottom: 20px;
+    }
+    /* 全屏效果中的姓名 */
+    .effect-name {
+      font-size: var(--name-size);
+      color: white;
+      text-shadow: 0 0 15px #4cc9f0;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    /* 全屏效果中的结果列表 */
+    .effect-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 30px;
+      max-width: 80%;
+    }
+    /* 全屏效果中的结果项 */

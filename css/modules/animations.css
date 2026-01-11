@@ -1,0 +1,40 @@
+/* animations 模块 */
+/* 翻转动画 */
+    @keyframes flip-enter {
+      from { transform: rotateY(-180deg); opacity: 0; }
+      to { transform: rotateY(0); opacity: 1; }
+    }
+    @keyframes flip-leave {
+      from { transform: rotateY(0); opacity: 1; }
+      to { transform: rotateY(180deg); opacity: 0; }
+    }
+    /* 翻转过渡类 */
+    .flip-enter-active {
+      animation: flip-enter 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+      transform-origin: center;
+      backface-visibility: hidden;
+    }
+    .flip-leave-active {
+      animation: flip-leave 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+      transform-origin: center;
+      backface-visibility: hidden;
+    }
+    /* 单次抽取动画 - 翻转 */
+    @keyframes flip {
+      0% { transform: perspective(400px) rotateX(0); opacity: 1; }
+      40% { transform: perspective(400px) rotateX(90deg); opacity: 0; }
+      60% { transform: perspective(400px) rotateX(-90deg); opacity: 0; }
+      100% { transform: perspective(400px) rotateX(0); opacity: 1; }
+    }
+    /* 单次抽取动画 - 突然放大 */
+    @keyframes popIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    /* 连抽/批量抽取动画 - 滚动 */
+    @keyframes rollIn {
+      0% { transform: translateX(100%); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+    /* 响应式设计 */

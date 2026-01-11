@@ -1,0 +1,23 @@
+/* settings 模块 */
+/* 高级设置区域 */
+    .advanced-settings {
+      margin-top: 2rem;
+    }
+    /* 展开/收起高级设置按钮 */
+    .toggle-advanced {
+      background: none;
+      border: none;
+      color: var(--primary-color);
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0 auto;
+      padding: 0.5rem;
+      transition: color 0.3s ease;
+    }
+    .dark-mode .toggle-advanced {
+      color: var(--dark-primary-color);
+    }
+    /* 高级设置面板 */

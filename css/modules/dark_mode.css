@@ -1,0 +1,24 @@
+/* dark_mode 模块 */
+/* 深色模式变量覆盖 */
+    .dark-mode {
+      --primary-color: var(--dark-primary-color);
+      --success-color: var(--dark-success-color);
+      --danger-color: var(--dark-danger-color);
+      --warning-color: var(--dark-warning-color);
+      --bg-color: var(--dark-bg-color);
+      --card-bg: var(--dark-card-bg);
+      --card-shadow: var(--dark-card-shadow);
+      --border-color: var(--dark-border-color);
+      --text-dark: var(--dark-text-dark);
+      --text-light: var(--dark-text-light);
+      --text-muted: var(--dark-text-muted);
+    }
+    /* 全局背景过渡 */
+    body {
+      background: var(--bg-color);
+      transition: background 0.3s ease;
+    }
+    .dark-mode body {
+      background: var(--dark-bg-color);
+    }
+    /* 深色模式下的特定元素样式 */

@@ -1,0 +1,6 @@
+/* responsive 模块 */
+@media (max-width: 600px) {
+      .container {
+        padding: 1.5rem;
+        width: 95%;
+      }

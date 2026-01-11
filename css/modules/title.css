@@ -1,0 +1,12 @@
+/* title 模块 */
+/* 页面标题样式 */
+    h1 {
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 1rem;
+      font-size: 1.8rem;
+      margin: 1rem 0 2rem;
+      color: var(--text-dark);
+      transition: color 0.3s ease;
+    }
+    /* 标题下方装饰线 */
