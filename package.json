@@ -1,0 +1,106 @@
+{
+  "name": "student-number-picker",
+  "version": "5.8.2",
+  "description": "智能学号抽取系统",
+  "homepage": "https://github.com/HerryABU/student-number-picker",
+  "author": "Feng Yuhao <qbz95qbz95@outlook.com> (https://github.com/HerryABU)",
+  "license": "MIT",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .--inspect",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux",
+    "dist:all": "electron-builder -wml",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "build": {
+    "appId": "com.fengyuhao.studentnumberpicker",
+    "productName": "学号抽取系统",
+    "copyright": "Copyright © 2025 Feng Yuhao",
+    "directories": {
+      "output": "dist",
+      "buildResources": "icos"
+    },
+    "files": [
+      "index.html",
+      "main.js",
+      "js/**/*",
+      "css/**/*",
+      "vendor/**/*",
+      "!**/*.ts",
+      "!**/*.tsx",
+      "!**/*.js.map",
+      "!**/*.css.map",
+      "!**/node_modules/**/*",
+      "!**/.git/**/*",
+      "!**/*.log",
+      "!**/package-lock.json",
+      "!**/yarn.lock",
+      "!**/README.md",
+      "!**/LICENSE",
+      "!**/docs/**/*",
+      "!**/tests/**/*",
+      "!**/__tests__/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "icos/icons/icon.ico",
+      "legalTrademarks": "学号抽取系统™"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "icos/icons/icon.icns",
+      "category": "public.app-category.education"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ],
+      "icon": "icos/icons/icon.png",
+      "category": "Education"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "学号抽取系统"
+    },
+    "compression": "maximum"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HerryABU/student-number-picker.git"
+  },
+  "keywords": [
+    "electron",
+    "student",
+    "picker",
+    "抽签",
+    "教育工具"
+  ],
+  "bugs": {
+    "url": "https://github.com/HerryABU/student-number-picker/issues"
+  },
+  "devDependencies": {
+    "@electron/asar": "^4.0.0",
+    "electron": "^37.2.0",
+    "electron-builder": "^26.8.1"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  },
+  "type": "commonjs"
+}
