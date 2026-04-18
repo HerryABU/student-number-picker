@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
   <meta name="description" content="智能学号抽取系统 - 支持学号范围、名单导入、多模态抽取">
   <meta name="theme-color" content="#4361ee">
-  <title>智能学号抽取系统 V5.9.3</title>
+  <title>智能学号抽取系统 V5.9.5</title>
   <link rel="preconnect" href="vendor">
   <link rel="stylesheet" href="vendor/css/all.min.css">
   <style>
@@ -555,6 +555,12 @@
       background: var(--bg-secondary);
     }
     
+    .upload-area.drag-over {
+      border-color: var(--primary-color);
+      background: rgba(67, 97, 238, 0.05);
+      transform: scale(1.02);
+    }
+    
     .upload-area:hover { border-color: var(--primary-color); background: rgba(67, 97, 238, 0.03); }
     .upload-icon { font-size: 48px; color: var(--primary-color); margin-bottom: var(--space-3); }
     
@@ -936,7 +942,6 @@
     ::-webkit-scrollbar-track { background: var(--bg-tertiary); border-radius: var(--radius-full); }
     ::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: var(--radius-full); }
     
-    /* 手动导入弹窗样式 */
     .paste-modal {
       display: none;
       position: fixed;
@@ -1017,7 +1022,6 @@
 <body>
   <div id="app" class="app-container"></div>
   
-  <!-- 手动粘贴导入弹窗 -->
   <div id="pasteModal" class="paste-modal">
     <div class="paste-modal-content">
       <h3><i class="fas fa-paste"></i> 粘贴学生数据</h3>
@@ -1079,52 +1083,8 @@
         }
       }
       
-      // ==================== 多端文件选择兼容层 ====================
-      function isInWebView() {
-        return typeof plus !== 'undefined' && plus !== null;
-      }
-      
-      function selectExcelFileCompat(callback) {
-        // 优先使用 HBuilderX 5+ API
-        if (isInWebView() && plus.io && plus.io.chooseFile) {
-          plus.io.chooseFile({
-            title: "选择Excel文件",
-            filter: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel",
-            multiple: false,
-            onsuccess: function(e) {
-              var filePath = e.path;
-              readFileWithPlus(filePath, callback);
-            },
-            onfail: function(e) {
-              console.log("plus.io.chooseFile 失败: " + e.message);
-              fallbackFileInput(callback);
-            }
-          });
-        } else {
-          fallbackFileInput(callback);
-        }
-      }
-      
-      function readFileWithPlus(filePath, callback) {
-        plus.io.resolveLocalFileSystemURL(filePath, function(entry) {
-          entry.file(function(file) {
-            var reader = new plus.io.FileReader();
-            reader.onloadend = function(e) {
-              var arrayBuffer = e.target.result;
-              if (callback) callback(arrayBuffer);
-            };
-            reader.readAsArrayBuffer(file);
-          }, function(err) {
-            console.log("读取文件失败: " + JSON.stringify(err));
-            fallbackFileInput(callback);
-          });
-        }, function(err) {
-          console.log("解析文件路径失败: " + JSON.stringify(err));
-          fallbackFileInput(callback);
-        });
-      }
-      
-      function fallbackFileInput(callback) {
+      // 文件选择（支持手机）
+      function selectExcelFile(callback) {
         var input = document.createElement('input');
         input.type = 'file';
         input.accept = '.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel';
@@ -1132,24 +1092,20 @@
           var file = e.target.files[0];
           if (!file) return;
           var reader = new FileReader();
-          reader.onload = function(evt) {
-            if (callback) callback(evt.target.result);
-          };
+          reader.onload = function(evt) { if (callback) callback(evt.target.result); };
+          reader.onerror = function() { if (callback) callback(null); };
           reader.readAsArrayBuffer(file);
         };
         input.click();
       }
       
       function parseExcelArrayBuffer(arrayBuffer, onSuccess, onError) {
-        if (typeof XLSX === 'undefined') {
-          if (onError) onError('XLSX库未加载');
-          return;
-        }
+        if (typeof XLSX === 'undefined') { if (onError) onError('XLSX库未加载'); return; }
+        if (!arrayBuffer) { if (onError) onError('文件读取失败'); return; }
         try {
           var wb = XLSX.read(arrayBuffer, { type: 'array' });
           var ws = wb.Sheets[wb.SheetNames[0]];
           var rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
-          
           var students = [];
           for (var i = 0; i < rows.length; i++) {
             var row = rows[i];
@@ -1158,15 +1114,9 @@
             var name = row.length > 1 ? String(row[1] || '').trim() : '';
             if (studentId) students.push({ student_id: studentId, name: name || '' });
           }
-          
-          if (students.length === 0) {
-            if (onError) onError('未找到有效数据');
-            return;
-          }
+          if (students.length === 0) { if (onError) onError('未找到有效数据'); return; }
           if (onSuccess) onSuccess(students);
-        } catch (err) {
-          if (onError) onError('解析失败: ' + err.message);
-        }
+        } catch (err) { if (onError) onError('解析失败: ' + err.message); }
       }
       
       function importFromPasteText(text, onSuccess, onError) {
@@ -1182,10 +1132,7 @@
             if (studentId) students.push({ student_id: studentId, name: name });
           }
         }
-        if (students.length === 0) {
-          if (onError) onError('未找到有效数据，请使用格式：学号,姓名');
-          return;
-        }
+        if (students.length === 0) { if (onError) onError('未找到有效数据'); return; }
         if (onSuccess) onSuccess(students);
       }
       
@@ -1196,36 +1143,31 @@
         
         const App = {
           setup() {
-            // ==================== 状态定义 ====================
             const isSetupPage = ref(true);
             const darkMode = ref(false);
             const showAdvanced = ref(false);
             const showBatchPanel = ref(false);
-            const isDragOver = ref(false);
             const showModal = ref(false);
             const showFullscreenEffect = ref(false);
             const showCelebration = ref(false);
             const isContinuous = ref(false);
             const animationClass = ref('');
+            const isDragOver = ref(false);
             
-            const modalConfig = ref({ 
-              title: '', message: '', confirmText: '确定', danger: false, 
-              onConfirm: null, inputRequired: false, inputValue: '', inputPlaceholder: '' 
-            });
+            const modalConfig = ref({ title: '', message: '', confirmText: '确定', danger: false, onConfirm: null, inputRequired: false, inputValue: '', inputPlaceholder: '' });
             const notifications = ref([]);
             
-            // 配置参数
-            const operationMode = ref('range');        // range / list
-            const startNumber = ref(1);                // 起始学号
-            const endNumber = ref(40);                 // 结束学号
-            const drawMode = ref('single');            // single / quick / tension / multimode
-            const noRepeat = ref(true);                // 不重复抽取
-            const nameFontSize = ref(5);               // 姓名字号
-            const numberFontSize = ref(80);            // 学号大小
-            const multiDrawCount = ref(5);             // 连抽次数
-            const batchDrawCount = ref(3);             // 批量抽取人数
-            const tensionFlashCount = ref(15);         // 闪烁次数
-            const tensionFlashSpeed = ref(100);        // 闪烁速度
+            const operationMode = ref('range');
+            const startNumber = ref(1);
+            const endNumber = ref(40);
+            const drawMode = ref('single');
+            const noRepeat = ref(true);
+            const nameFontSize = ref(5);
+            const numberFontSize = ref(80);
+            const multiDrawCount = ref(5);
+            const batchDrawCount = ref(3);
+            const tensionFlashCount = ref(15);
+            const tensionFlashSpeed = ref(100);
             
             const probabilityRanges = ref([]);
             const studentGroups = ref([{ name: '默认组', students: [] }]);
@@ -1258,8 +1200,6 @@
             
             const availableCount = computed(() => totalCount.value - usedList.value.length);
             
-            // ==================== URL参数功能 ====================
-            
             const encodeProbabilityRanges = () => {
               if (!probabilityRanges.value.length) return '';
               return probabilityRanges.value.map(r => `${r.start}-${r.end}-${r.weight}`).join(',');
@@ -1270,9 +1210,7 @@
               return str.split(',').map(part => {
                 const parts = part.split('-');
                 if (parts.length !== 3) return null;
-                const s = parseInt(parts[0]);
-                const e = parseInt(parts[1]);
-                const w = parseInt(parts[2]);
+                const s = parseInt(parts[0]), e = parseInt(parts[1]), w = parseInt(parts[2]);
                 if (isNaN(s) || isNaN(e) || isNaN(w)) return null;
                 return { start: s, end: e, weight: w };
               }).filter(r => r !== null);
@@ -1284,54 +1222,31 @@
               params.set('draw', getDrawModeValue());
               params.set('norepeat', noRepeat.value ? 'true' : 'false');
               params.set('darkmode', darkMode.value ? 'true' : 'false');
-              
               if (operationMode.value === 'range') {
                 params.set('start', String(startNumber.value));
                 params.set('end', String(endNumber.value));
               }
-              
               params.set('namesize', String(nameFontSize.value));
               params.set('numbersize', String(numberFontSize.value));
               params.set('multicount', String(multiDrawCount.value));
               params.set('batchcount', String(batchDrawCount.value));
               params.set('flashcount', String(tensionFlashCount.value));
               params.set('flashspeed', String(tensionFlashSpeed.value));
-              
               const probStr = encodeProbabilityRanges();
               if (probStr) params.set('probability', probStr);
-              
               const newUrl = window.location.pathname + '?' + params.toString();
               window.history.replaceState(null, '', newUrl);
             };
             
             const loadFromUrlParams = () => {
               const params = new URLSearchParams(window.location.search);
-              
-              if (params.has('mode')) {
-                const m = params.get('mode');
-                if (m === 'range' || m === 'list') operationMode.value = m;
-              }
-              
-              if (params.has('draw')) {
-                const d = params.get('draw');
-                if (['single', 'quick', 'tension', 'multimode'].includes(d)) {
-                  setDrawModeValue(d);
-                }
-              }
-              
-              if (params.has('norepeat')) {
-                noRepeat.value = params.get('norepeat') === 'true';
-              }
-              
+              if (params.has('mode')) { const m = params.get('mode'); if (m === 'range' || m === 'list') operationMode.value = m; }
+              if (params.has('draw')) { const d = params.get('draw'); if (['single', 'quick', 'tension', 'multimode'].includes(d)) setDrawModeValue(d); }
+              if (params.has('norepeat')) noRepeat.value = params.get('norepeat') === 'true';
               if (params.has('darkmode')) {
                 const dm = params.get('darkmode') === 'true';
-                if (dm !== darkMode.value) {
-                  darkMode.value = dm;
-                  document.body.classList.toggle('dark-mode', dm);
-                  localStorage.setItem('darkMode', dm);
-                }
+                if (dm !== darkMode.value) { darkMode.value = dm; document.body.classList.toggle('dark-mode', dm); localStorage.setItem('darkMode', dm); }
               }
-              
               if (params.has('start')) startNumber.value = parseInt(params.get('start')) || 1;
               if (params.has('end')) endNumber.value = parseInt(params.get('end')) || 40;
               if (params.has('namesize')) nameFontSize.value = parseFloat(params.get('namesize')) || 5;
@@ -1340,12 +1255,7 @@
               if (params.has('batchcount')) batchDrawCount.value = parseInt(params.get('batchcount')) || 3;
               if (params.has('flashcount')) tensionFlashCount.value = parseInt(params.get('flashcount')) || 15;
               if (params.has('flashspeed')) tensionFlashSpeed.value = parseInt(params.get('flashspeed')) || 100;
-              
-              if (params.has('probability')) {
-                const decoded = decodeProbabilityRanges(params.get('probability'));
-                if (decoded.length > 0) probabilityRanges.value = decoded;
-              }
-              
+              if (params.has('probability')) { const decoded = decodeProbabilityRanges(params.get('probability')); if (decoded.length > 0) probabilityRanges.value = decoded; }
               setTimeout(() => {
                 document.documentElement.style.setProperty('--name-size', nameFontSize.value + 'rem');
                 document.documentElement.style.setProperty('--number-size', numberFontSize.value + 'pt');
@@ -1355,72 +1265,35 @@
             const copyShareLink = () => {
               updateUrlParams();
               const url = window.location.href;
-              
-              navigator.clipboard?.writeText(url).then(() => {
-                showNotification('📋 链接已复制到剪贴板！', 'success');
-              }).catch(() => {
-                const textarea = document.createElement('textarea');
-                textarea.value = url;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                showNotification('📋 链接已复制到剪贴板！', 'success');
-              });
+              navigator.clipboard?.writeText(url).then(() => showNotification('📋 链接已复制到剪贴板！', 'success'))
+                .catch(() => { const ta = document.createElement('textarea'); ta.value = url; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showNotification('📋 链接已复制到剪贴板！', 'success'); });
             };
             
-            // 监听参数变化
-            watch([
-              operationMode, drawMode, noRepeat, darkMode, startNumber, endNumber, 
-              nameFontSize, numberFontSize, multiDrawCount, batchDrawCount, 
-              tensionFlashCount, tensionFlashSpeed, probabilityRanges
-            ], () => {
-              if (isSetupPage.value) {
-                updateUrlParams();
-              }
-            }, { deep: true });
-            
-            // ==================== 核心功能 ====================
+            watch([operationMode, drawMode, noRepeat, darkMode, startNumber, endNumber, nameFontSize, numberFontSize, multiDrawCount, batchDrawCount, tensionFlashCount, tensionFlashSpeed, probabilityRanges], () => { if (isSetupPage.value) updateUrlParams(); }, { deep: true });
             
             const getAllItems = () => {
               if (operationMode.value === 'list') {
-                return currentStudents.value.map(s => ({ 
-                  student_id: String(s.student_id), 
-                  name: s.name || '' 
-                }));
+                return currentStudents.value.map(s => ({ student_id: String(s.student_id), name: s.name || '' }));
               } else {
                 const items = [];
-                for (let i = startNumber.value; i <= endNumber.value; i++) {
-                  items.push({ student_id: String(i), name: '' });
-                }
+                for (let i = startNumber.value; i <= endNumber.value; i++) items.push({ student_id: String(i), name: '' });
                 return items;
               }
             };
             
-            const isUsed = (item) => {
-              if (!item) return false;
-              return usedList.value.some(u => String(u.student_id) === String(item.student_id));
-            };
+            const isUsed = (item) => item && usedList.value.some(u => String(u.student_id) === String(item.student_id));
             
             const getAvailableItems = () => {
               let items = getAllItems();
               if (operationMode.value === 'range' && probabilityRanges.value.length > 0) {
                 const weighted = [];
                 for (const r of probabilityRanges.value) {
-                  const rangeItems = items.filter(item => { 
-                    const id = parseInt(item.student_id); 
-                    return id >= r.start && id <= r.end && !isUsed(item); 
-                  });
+                  const rangeItems = items.filter(item => { const id = parseInt(item.student_id); return id >= r.start && id <= r.end && !isUsed(item); });
                   for (let i = 0; i < r.weight; i++) weighted.push(...rangeItems);
                 }
                 const covered = new Set();
-                probabilityRanges.value.forEach(r => { 
-                  for (let i = r.start; i <= r.end; i++) covered.add(i); 
-                });
-                const uncovered = items.filter(item => { 
-                  const id = parseInt(item.student_id); 
-                  return !covered.has(id) && !isUsed(item); 
-                });
+                probabilityRanges.value.forEach(r => { for (let i = r.start; i <= r.end; i++) covered.add(i); });
+                const uncovered = items.filter(item => { const id = parseInt(item.student_id); return !covered.has(id) && !isUsed(item); });
                 return [...weighted, ...uncovered];
               }
               return items.filter(item => !isUsed(item));
@@ -1434,10 +1307,7 @@
             
             const showNotification = (msg, type = 'success') => {
               const id = Date.now() + Math.random();
-              const icons = { 
-                success: 'fa-check-circle', error: 'fa-exclamation-circle', 
-                warning: 'fa-exclamation-triangle', info: 'fa-info-circle' 
-              };
+              const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
               notifications.value.push({ id, message: msg, type, icon: icons[type] || 'fa-bell' });
               setTimeout(() => { notifications.value = notifications.value.filter(n => n.id !== id); }, 3000);
             };
@@ -1462,11 +1332,7 @@
                 }
               }
               if (celebrationTimer) clearTimeout(celebrationTimer);
-              celebrationTimer = setTimeout(() => {
-                showCelebration.value = false;
-                const c = document.querySelector('.celebration-container');
-                if (c) c.innerHTML = '';
-              }, 3500);
+              celebrationTimer = setTimeout(() => { showCelebration.value = false; const c = document.querySelector('.celebration-container'); if (c) c.innerHTML = ''; }, 3500);
             };
             
             const addToUsed = (item) => {
@@ -1478,10 +1344,7 @@
               return false;
             };
             
-            const applyAnimation = (cls) => { 
-              animationClass.value = cls; 
-              setTimeout(() => animationClass.value = '', 500); 
-            };
+            const applyAnimation = (cls) => { animationClass.value = cls; setTimeout(() => animationClass.value = '', 500); };
             
             const drawSingle = () => {
               multiDrawResults.value = [];
@@ -1495,27 +1358,24 @@
               if (availableCount.value === 0) triggerCelebration();
             };
             
+            // 修复1: 快速抽取 - 停止时同步主显示区
             const toggleContinuous = () => {
               if (isContinuous.value) {
                 clearInterval(continuousTimer);
                 isContinuous.value = false;
-                const item = pickRandom();
-                if (item) { 
-                  applyAnimation('anim-pop'); 
-                  if (noRepeat.value) addToUsed(item); 
-                  currentNumber.value = item.student_id; 
-                  currentStudent.value = JSON.parse(JSON.stringify(item)); 
+                if (currentNumber.value !== '—' && noRepeat.value) {
+                  const finalItem = { student_id: currentNumber.value, name: currentStudent.value.name };
+                  if (!usedList.value.some(u => u.student_id === finalItem.student_id)) {
+                    usedList.value.push(finalItem);
+                  }
                 }
+                multiDrawResults.value = [{ student_id: currentNumber.value, name: currentStudent.value.name }];
+                if (availableCount.value === 0) triggerCelebration();
               } else {
                 isContinuous.value = true;
                 continuousTimer = setInterval(() => {
                   const available = getAvailableItems();
-                  if (available.length === 0) { 
-                    clearInterval(continuousTimer); 
-                    isContinuous.value = false; 
-                    triggerCelebration(); 
-                    return; 
-                  }
+                  if (available.length === 0) { clearInterval(continuousTimer); isContinuous.value = false; triggerCelebration(); return; }
                   const idx = Math.floor(Math.random() * available.length);
                   currentNumber.value = available[idx].student_id;
                   currentStudent.value = JSON.parse(JSON.stringify(available[idx]));
@@ -1533,6 +1393,7 @@
                 if (noRepeat.value) addToUsed(item);
                 currentNumber.value = item.student_id;
                 currentStudent.value = JSON.parse(JSON.stringify(item));
+                multiDrawResults.value = [JSON.parse(JSON.stringify(item))];
                 return;
               }
               let count = 0;
@@ -1540,18 +1401,12 @@
               tensionTimer = setInterval(() => {
                 count++;
                 const now = getAvailableItems();
-                if (now.length === 0) { 
-                  clearInterval(tensionTimer); 
-                  tensionTimer = null; 
-                  triggerCelebration(); 
-                  return; 
-                }
+                if (now.length === 0) { clearInterval(tensionTimer); tensionTimer = null; triggerCelebration(); return; }
                 const idx = Math.floor(Math.random() * now.length);
                 currentNumber.value = now[idx].student_id;
                 currentStudent.value = JSON.parse(JSON.stringify(now[idx]));
                 if (count >= tensionFlashCount.value) {
-                  clearInterval(tensionTimer); 
-                  tensionTimer = null;
+                  clearInterval(tensionTimer); tensionTimer = null;
                   applyAnimation('anim-pop');
                   if (finalItem) { 
                     if (noRepeat.value) addToUsed(finalItem); 
@@ -1576,8 +1431,7 @@
               let idx = 0;
               fullscreenTimer = setInterval(() => {
                 if (idx >= count || temp.length === 0) {
-                  clearInterval(fullscreenTimer); 
-                  fullscreenTimer = null;
+                  clearInterval(fullscreenTimer); fullscreenTimer = null;
                   setTimeout(() => {
                     showFullscreenEffect.value = false;
                     if (results.length) {
@@ -1617,8 +1471,7 @@
               let idx = 0;
               fullscreenTimer = setInterval(() => {
                 if (idx >= count || temp.length === 0) {
-                  clearInterval(fullscreenTimer); 
-                  fullscreenTimer = null;
+                  clearInterval(fullscreenTimer); fullscreenTimer = null;
                   setTimeout(() => {
                     showFullscreenEffect.value = false;
                     if (results.length) {
@@ -1646,14 +1499,8 @@
             };
             
             const startDraw = () => {
-              if (operationMode.value === 'range' && startNumber.value > endNumber.value) { 
-                showNotification('起始学号不能大于结束学号', 'error'); 
-                return; 
-              }
-              if (operationMode.value === 'list' && currentStudents.value.length === 0) { 
-                showNotification('请先导入学生名单', 'error'); 
-                return; 
-              }
+              if (operationMode.value === 'range' && startNumber.value > endNumber.value) { showNotification('起始学号不能大于结束学号', 'error'); return; }
+              if (operationMode.value === 'list' && currentStudents.value.length === 0) { showNotification('请先导入学生名单', 'error'); return; }
               usedList.value = [];
               currentNumber.value = '—';
               currentStudent.value = { student_id: '', name: '' };
@@ -1669,16 +1516,57 @@
               isSetupPage.value = true;
             };
             
+            // 修复2: 清空历史 - 只清空记录，不影响其他UI
             const clearHistory = () => {
               usedList.value = [];
               currentNumber.value = '—';
               currentStudent.value = { student_id: '', name: '' };
               multiDrawResults.value = [];
+              showNotification('历史记录已清空', 'info');
             };
             
-            // ==================== 多端兼容的文件导入 ====================
+            // 修复3: 添加拖拽上传功能
+            const handleDragOver = (e) => {
+              e.preventDefault();
+              isDragOver.value = true;
+            };
+            
+            const handleDragLeave = (e) => {
+              e.preventDefault();
+              isDragOver.value = false;
+            };
+            
+            const handleDrop = (e) => {
+              e.preventDefault();
+              isDragOver.value = false;
+              const files = e.dataTransfer.files;
+              if (files.length > 0) {
+                const file = files[0];
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                  parseExcelArrayBuffer(evt.target.result, (students) => {
+                    const gIdx = studentGroups.value.findIndex(g => g.name === currentGroup.value);
+                    if (gIdx >= 0) {
+                      const existingIds = studentGroups.value[gIdx].students.map(s => s.student_id);
+                      let added = 0;
+                      for (const s of students) {
+                        if (!existingIds.includes(s.student_id)) {
+                          studentGroups.value[gIdx].students.push(s);
+                          added++;
+                        }
+                      }
+                      localStorage.setItem('studentGroups', JSON.stringify(studentGroups.value));
+                      showNotification(`成功导入 ${added} 条新记录`, 'success');
+                    }
+                  }, (errMsg) => showNotification(errMsg, 'error'));
+                };
+                reader.readAsArrayBuffer(file);
+              }
+            };
+            
             const handleFileSelect = () => {
-              selectExcelFileCompat(function(arrayBuffer) {
+              selectExcelFile(function(arrayBuffer) {
+                if (!arrayBuffer) { showNotification('文件读取失败，请重试', 'error'); return; }
                 parseExcelArrayBuffer(arrayBuffer, function(students) {
                   const gIdx = studentGroups.value.findIndex(g => g.name === currentGroup.value);
                   if (gIdx >= 0) {
@@ -1693,33 +1581,16 @@
                     localStorage.setItem('studentGroups', JSON.stringify(studentGroups.value));
                     showNotification(`成功导入 ${added} 条新记录`, 'success');
                   }
-                }, function(errMsg) {
-                  showNotification(errMsg, 'error');
-                });
+                }, function(errMsg) { showNotification(errMsg, 'error'); });
               });
             };
             
-            const showPasteImportModal = () => {
-              const modal = document.getElementById('pasteModal');
-              if (modal) {
-                modal.classList.add('show');
-                const textarea = document.getElementById('pasteData');
-                if (textarea) textarea.value = '';
-              }
-            };
-            
-            const closePasteModal = () => {
-              const modal = document.getElementById('pasteModal');
-              if (modal) modal.classList.remove('show');
-            };
-            
+            const showPasteImportModal = () => { const modal = document.getElementById('pasteModal'); if (modal) { modal.classList.add('show'); const ta = document.getElementById('pasteData'); if (ta) ta.value = ''; } };
+            const closePasteModal = () => { const modal = document.getElementById('pasteModal'); if (modal) modal.classList.remove('show'); };
             const confirmPasteImport = () => {
               const textarea = document.getElementById('pasteData');
               const text = textarea ? textarea.value : '';
-              if (!text.trim()) {
-                showNotification('请输入数据', 'warning');
-                return;
-              }
+              if (!text.trim()) { showNotification('请输入数据', 'warning'); return; }
               importFromPasteText(text, function(students) {
                 const gIdx = studentGroups.value.findIndex(g => g.name === currentGroup.value);
                 if (gIdx >= 0) {
@@ -1735,12 +1606,9 @@
                   showNotification(`成功导入 ${added} 条新记录`, 'success');
                   closePasteModal();
                 }
-              }, function(errMsg) {
-                showNotification(errMsg, 'error');
-              });
+              }, function(errMsg) { showNotification(errMsg, 'error'); });
             };
             
-            // 绑定全局弹窗事件
             if (typeof window !== 'undefined') {
               window.selectExcelFile = handleFileSelect;
               window.showPasteImport = showPasteImportModal;
@@ -1752,28 +1620,17 @@
               const gIdx = studentGroups.value.findIndex(g => g.name === currentGroup.value);
               if (gIdx >= 0) {
                 const sIdx = studentGroups.value[gIdx].students.findIndex(s => s.student_id === studentId);
-                if (sIdx >= 0) { 
-                  studentGroups.value[gIdx].students.splice(sIdx, 1); 
-                  localStorage.setItem('studentGroups', JSON.stringify(studentGroups.value)); 
-                  showNotification('已删除学生', 'info'); 
-                }
+                if (sIdx >= 0) { studentGroups.value[gIdx].students.splice(sIdx, 1); localStorage.setItem('studentGroups', JSON.stringify(studentGroups.value)); showNotification('已删除学生', 'info'); }
               }
             };
             
             const clearCurrentGroup = () => {
               const gIdx = studentGroups.value.findIndex(g => g.name === currentGroup.value);
-              if (gIdx >= 0) { 
-                studentGroups.value[gIdx].students = []; 
-                localStorage.setItem('studentGroups', JSON.stringify(studentGroups.value)); 
-                showNotification('已清空当前分组', 'info'); 
-              }
+              if (gIdx >= 0) { studentGroups.value[gIdx].students = []; localStorage.setItem('studentGroups', JSON.stringify(studentGroups.value)); showNotification('已清空当前分组', 'info'); }
             };
             
             const deleteGroup = (name, idx) => {
-              if (studentGroups.value.length <= 1) { 
-                showNotification('至少保留一个分组', 'warning'); 
-                return; 
-              }
+              if (studentGroups.value.length <= 1) { showNotification('至少保留一个分组', 'warning'); return; }
               studentGroups.value.splice(idx, 1);
               if (currentGroup.value === name) currentGroup.value = studentGroups.value[0].name;
               localStorage.setItem('studentGroups', JSON.stringify(studentGroups.value));
@@ -1783,10 +1640,7 @@
             const addGroup = () => {
               const name = modalConfig.value.inputValue?.trim();
               if (!name) { showNotification('组名不能为空', 'warning'); return; }
-              if (studentGroups.value.some(g => g.name === name)) { 
-                showNotification('组名已存在', 'error'); 
-                return; 
-              }
+              if (studentGroups.value.some(g => g.name === name)) { showNotification('组名已存在', 'error'); return; }
               studentGroups.value.push({ name, students: [] });
               currentGroup.value = name;
               localStorage.setItem('studentGroups', JSON.stringify(studentGroups.value));
@@ -1797,10 +1651,7 @@
             const renameGroup = (oldName, idx) => {
               const newName = modalConfig.value.inputValue?.trim();
               if (!newName) { showNotification('组名不能为空', 'warning'); return; }
-              if (studentGroups.value.some((g, i) => g.name === newName && i !== idx)) { 
-                showNotification('组名已存在', 'error'); 
-                return; 
-              }
+              if (studentGroups.value.some((g, i) => g.name === newName && i !== idx)) { showNotification('组名已存在', 'error'); return; }
               studentGroups.value[idx].name = newName;
               if (currentGroup.value === oldName) currentGroup.value = newName;
               localStorage.setItem('studentGroups', JSON.stringify(studentGroups.value));
@@ -1808,14 +1659,7 @@
               showModal.value = false;
             };
             
-            const addProbabilityRange = () => {
-              probabilityRanges.value.push({ 
-                start: startNumber.value, 
-                end: endNumber.value, 
-                weight: 1 
-              });
-            };
-            
+            const addProbabilityRange = () => { probabilityRanges.value.push({ start: startNumber.value, end: endNumber.value, weight: 1 }); };
             const removeProbabilityRange = (i) => probabilityRanges.value.splice(i, 1);
             
             const applyFontSettings = () => {
@@ -1830,66 +1674,35 @@
               localStorage.setItem('darkMode', darkMode.value);
             };
             
-            const showModalWithConfig = (cfg) => { 
-              modalConfig.value = { ...modalConfig.value, ...cfg, inputValue: cfg.inputRequired ? '' : modalConfig.value.inputValue }; 
-              showModal.value = true; 
-            };
-            
-            const showAddGroupModal = () => showModalWithConfig({ 
-              title: '新建分组', message: '请输入新分组名称：', inputRequired: true, 
-              inputPlaceholder: '例如：三年二班', confirmText: '创建', onConfirm: addGroup 
-            });
-            
-            const showRenameGroupModal = (name, idx) => showModalWithConfig({ 
-              title: '重命名分组', message: `请输入 "${name}" 的新名称：`, inputRequired: true, 
-              inputPlaceholder: name, confirmText: '重命名', onConfirm: () => renameGroup(name, idx) 
-            });
-            
-            const showDeleteGroupModal = (name, idx) => showModalWithConfig({ 
-              title: '删除分组', message: `确定要删除分组 "${name}" 吗？`, confirmText: '删除', 
-              danger: true, onConfirm: () => { deleteGroup(name, idx); showModal.value = false; } 
-            });
-            
-            const showClearGroupModal = () => showModalWithConfig({ 
-              title: '清空名单', message: `确定要清空分组 "${currentGroup.value}" 的所有学生吗？`, 
-              confirmText: '清空', danger: true, onConfirm: () => { clearCurrentGroup(); showModal.value = false; } 
-            });
-            
-            const showResetHistoryModal = () => showModalWithConfig({ 
-              title: '重置记录', message: '确定要重置所有已抽取记录吗？', confirmText: '重置', 
-              danger: true, onConfirm: () => { clearHistory(); showModal.value = false; } 
-            });
-            
-            const showClearHistoryModal = () => showModalWithConfig({ 
-              title: '清除历史', message: '确定要清除所有历史记录吗？', confirmText: '清除', 
-              danger: true, onConfirm: () => { clearHistory(); showModal.value = false; } 
-            });
+            const showModalWithConfig = (cfg) => { modalConfig.value = { ...modalConfig.value, ...cfg, inputValue: cfg.inputRequired ? '' : modalConfig.value.inputValue }; showModal.value = true; };
+            const showAddGroupModal = () => showModalWithConfig({ title: '新建分组', message: '请输入新分组名称：', inputRequired: true, inputPlaceholder: '例如：三年二班', confirmText: '创建', onConfirm: addGroup });
+            const showRenameGroupModal = (name, idx) => showModalWithConfig({ title: '重命名分组', message: `请输入 "${name}" 的新名称：`, inputRequired: true, inputPlaceholder: name, confirmText: '重命名', onConfirm: () => renameGroup(name, idx) });
+            const showDeleteGroupModal = (name, idx) => showModalWithConfig({ title: '删除分组', message: `确定要删除分组 "${name}" 吗？`, confirmText: '删除', danger: true, onConfirm: () => { deleteGroup(name, idx); showModal.value = false; } });
+            const showClearGroupModal = () => showModalWithConfig({ title: '清空名单', message: `确定要清空分组 "${currentGroup.value}" 的所有学生吗？`, confirmText: '清空', danger: true, onConfirm: () => { clearCurrentGroup(); showModal.value = false; } });
+            const showResetHistoryModal = () => showModalWithConfig({ title: '重置记录', message: '确定要重置所有已抽取记录吗？', confirmText: '重置', danger: true, onConfirm: () => { clearHistory(); showModal.value = false; } });
+            const showClearHistoryModal = () => showModalWithConfig({ title: '清除历史', message: '确定要清除所有历史记录吗？', confirmText: '清除', danger: true, onConfirm: () => { clearHistory(); showModal.value = false; } });
             
             onMounted(() => {
               try {
                 const saved = localStorage.getItem('studentGroups');
-                if (saved) { 
-                  const p = JSON.parse(saved); 
-                  if (p.length) studentGroups.value = p; 
-                }
+                if (saved) { const p = JSON.parse(saved); if (p.length) studentGroups.value = p; }
                 const dm = localStorage.getItem('darkMode');
-                if (dm === 'true') { 
-                  darkMode.value = true; 
-                  document.body.classList.add('dark-mode'); 
-                }
+                if (dm === 'true') { darkMode.value = true; document.body.classList.add('dark-mode'); }
               } catch (e) {}
-              
               loadFromUrlParams();
-              
-              setTimeout(() => {
-                updateUrlParams();
-              }, 100);
-              
-              // 绑定粘贴弹窗事件
+              setTimeout(() => updateUrlParams(), 100);
               const confirmBtn = document.getElementById('confirmPasteBtn');
               const closeBtn = document.getElementById('closePasteBtn');
               if (confirmBtn) confirmBtn.onclick = confirmPasteImport;
               if (closeBtn) closeBtn.onclick = closePasteModal;
+              
+              // 绑定拖拽事件到upload-area
+              const uploadArea = document.querySelector('.upload-area');
+              if (uploadArea) {
+                uploadArea.addEventListener('dragover', handleDragOver);
+                uploadArea.addEventListener('dragleave', handleDragLeave);
+                uploadArea.addEventListener('drop', handleDrop);
+              }
             });
             
             onUnmounted(() => {
@@ -1897,73 +1710,50 @@
               if (tensionTimer) clearInterval(tensionTimer);
               if (fullscreenTimer) clearInterval(fullscreenTimer);
               if (celebrationTimer) clearTimeout(celebrationTimer);
+              const uploadArea = document.querySelector('.upload-area');
+              if (uploadArea) {
+                uploadArea.removeEventListener('dragover', handleDragOver);
+                uploadArea.removeEventListener('dragleave', handleDragLeave);
+                uploadArea.removeEventListener('drop', handleDrop);
+              }
             });
             
             return () => {
               const { h } = Vue;
               
               return h('div', { class: 'main-card' }, [
-                h('button', { class: 'theme-toggle-btn', onClick: toggleDarkMode }, [
-                  h('i', { class: darkMode.value ? 'fas fa-sun' : 'fas fa-moon' })
-                ]),
-                isSetupPage.value && h('button', { class: 'share-btn', onClick: copyShareLink, title: '复制分享链接' }, [
-                  h('i', { class: 'fas fa-share-alt' })
-                ]),
+                h('button', { class: 'theme-toggle-btn', onClick: toggleDarkMode }, [h('i', { class: darkMode.value ? 'fas fa-sun' : 'fas fa-moon' })]),
+                isSetupPage.value && h('button', { class: 'share-btn', onClick: copyShareLink, title: '复制分享链接' }, [h('i', { class: 'fas fa-share-alt' })]),
                 h('div', { class: 'celebration-container' }),
                 
-                showFullscreenEffect.value && h('div', { 
-                  class: 'fullscreen-overlay', 
-                  onClick: () => { showFullscreenEffect.value = false; } 
-                }, [
+                showFullscreenEffect.value && h('div', { class: 'fullscreen-overlay', onClick: () => { showFullscreenEffect.value = false; } }, [
                   h('div', { class: 'fullscreen-main' }, [
                     h('div', { class: 'fullscreen-number' }, fullscreenNumber.value),
                     fullscreenName.value && h('div', { class: 'fullscreen-name' }, fullscreenName.value)
                   ]),
-                  fullscreenResults.value.length > 0 && h('div', { class: 'fullscreen-results' },
-                    fullscreenResults.value.map((item, i) => h('div', { 
-                      class: 'fullscreen-chip', 
-                      style: { animationDelay: i * 0.08 + 's' } 
-                    }, [
-                      h('div', { class: 'fullscreen-chip-id' }, item.student_id),
-                      item.name && h('div', { class: 'fullscreen-chip-name' }, item.name)
-                    ]))
-                  ),
+                  fullscreenResults.value.length > 0 && h('div', { class: 'fullscreen-results' }, fullscreenResults.value.map((item, i) => h('div', { class: 'fullscreen-chip', style: { animationDelay: i * 0.08 + 's' } }, [
+                    h('div', { class: 'fullscreen-chip-id' }, item.student_id),
+                    item.name && h('div', { class: 'fullscreen-chip-name' }, item.name)
+                  ]))),
                   h('div', { class: 'close-fullscreen' }, '点击空白处关闭')
                 ]),
                 
-                showCelebration.value && h('div', { class: 'celebration-message' }, [
-                  h('i', { class: 'fas fa-trophy', style: 'margin-right: 12px;' }), 
-                  celebrationMessage.value
-                ]),
+                showCelebration.value && h('div', { class: 'celebration-message' }, [h('i', { class: 'fas fa-trophy', style: 'margin-right: 12px;' }), celebrationMessage.value]),
                 
-                notifications.value.length > 0 && h('div', { class: 'notification-container' },
-                  notifications.value.map(n => h('div', { 
-                    class: ['notification', n.type, 'show'], 
-                    key: n.id 
-                  }, [
-                    h('i', { class: ['fas', n.icon, 'notification-icon'] }), 
-                    h('span', n.message)
-                  ]))
-                ),
+                notifications.value.length > 0 && h('div', { class: 'notification-container' }, notifications.value.map(n => h('div', { class: ['notification', n.type, 'show'], key: n.id }, [
+                  h('i', { class: ['fas', n.icon, 'notification-icon'] }), h('span', n.message)
+                ]))),
                 
                 showModal.value && h('div', { class: 'modal-overlay', onClick: () => showModal.value = false }, [
                   h('div', { class: 'modal', onClick: e => e.stopPropagation() }, [
                     h('div', { class: 'modal-header' }, modalConfig.value.title),
                     h('div', { class: 'modal-body' }, [
                       h('p', modalConfig.value.message),
-                      modalConfig.value.inputRequired && h('input', { 
-                        class: 'modal-input', type: 'text', 
-                        value: modalConfig.value.inputValue, 
-                        placeholder: modalConfig.value.inputPlaceholder, 
-                        onInput: e => modalConfig.value.inputValue = e.target.value 
-                      })
+                      modalConfig.value.inputRequired && h('input', { class: 'modal-input', type: 'text', value: modalConfig.value.inputValue, placeholder: modalConfig.value.inputPlaceholder, onInput: e => modalConfig.value.inputValue = e.target.value })
                     ]),
                     h('div', { class: 'modal-footer' }, [
                       h('button', { class: 'btn btn-outline', onClick: () => showModal.value = false }, '取消'),
-                      h('button', { 
-                        class: ['btn', modalConfig.value.danger ? 'btn-danger' : 'btn-primary'], 
-                        onClick: () => { if (modalConfig.value.onConfirm) modalConfig.value.onConfirm(); } 
-                      }, modalConfig.value.confirmText || '确定')
+                      h('button', { class: ['btn', modalConfig.value.danger ? 'btn-danger' : 'btn-primary'], onClick: () => { if (modalConfig.value.onConfirm) modalConfig.value.onConfirm(); } }, modalConfig.value.confirmText || '确定')
                     ])
                   ])
                 ]),
@@ -1973,113 +1763,50 @@
               
               function renderSetupPage() {
                 return h('div', [
-                  h('h1', { class: 'page-title' }, [
-                    h('i', { class: 'fas fa-users-gear' }), 
-                    ' 学号抽取设置', 
-                    h('span', { class: 'version-badge' }, 'v5.9.3')
-                  ]),
-                  
+                  h('h1', { class: 'page-title' }, [h('i', { class: 'fas fa-users-gear' }), ' 学号抽取设置', h('span', { class: 'version-badge' }, 'v5.9.5')]),
                   h('div', { class: 'mode-switch-container' }, [
-                    h('div', { 
-                      class: ['mode-card', { active: operationMode.value === 'range' }], 
-                      onClick: () => operationMode.value = 'range' 
-                    }, [
-                      h('div', { class: 'mode-icon' }, h('i', { class: 'fas fa-sort-numeric-up' })), 
-                      h('div', { class: 'mode-title' }, '学号范围'), 
-                      h('div', { class: 'mode-desc' }, '按数字区间抽取')
+                    h('div', { class: ['mode-card', { active: operationMode.value === 'range' }], onClick: () => operationMode.value = 'range' }, [
+                      h('div', { class: 'mode-icon' }, h('i', { class: 'fas fa-sort-numeric-up' })), h('div', { class: 'mode-title' }, '学号范围'), h('div', { class: 'mode-desc' }, '按数字区间抽取')
                     ]),
-                    h('div', { 
-                      class: ['mode-card', { active: operationMode.value === 'list' }], 
-                      onClick: () => operationMode.value = 'list' 
-                    }, [
-                      h('div', { class: 'mode-icon' }, h('i', { class: 'fas fa-list-ol' })), 
-                      h('div', { class: 'mode-title' }, '名单导入'), 
-                      h('div', { class: 'mode-desc' }, 'Excel导入名单')
+                    h('div', { class: ['mode-card', { active: operationMode.value === 'list' }], onClick: () => operationMode.value = 'list' }, [
+                      h('div', { class: 'mode-icon' }, h('i', { class: 'fas fa-list-ol' })), h('div', { class: 'mode-title' }, '名单导入'), h('div', { class: 'mode-desc' }, 'Excel导入名单')
                     ])
                   ]),
-                  
                   h('div', { class: 'form-group' }, [
                     h('label', { class: 'form-label' }, [h('i', { class: 'fas fa-dice' }), ' 抽取模式']),
-                    h('select', { 
-                      class: 'form-control', 
-                      value: getDrawModeValue(), 
-                      onChange: e => setDrawModeValue(e.target.value) 
-                    }, [
-                      h('option', { value: 'single' }, '单次抽取'), 
-                      h('option', { value: 'quick' }, '快速抽取'), 
-                      h('option', { value: 'tension' }, '惊心动魄'), 
-                      h('option', { value: 'multimode' }, '多模态')
+                    h('select', { class: 'form-control', value: getDrawModeValue(), onChange: e => setDrawModeValue(e.target.value) }, [
+                      h('option', { value: 'single' }, '单次抽取'), h('option', { value: 'quick' }, '快速抽取'), h('option', { value: 'tension' }, '惊心动魄'), h('option', { value: 'multimode' }, '多模态')
                     ])
                   ]),
-                  
-                  getDrawModeValue() === 'multimode' && h('div', { class: 'info-card' }, [
-                    h('i', { class: 'fas fa-info-circle' }), 
-                    '多模态模式：抽取页面同时显示单次、快速、惊心三种抽取按钮'
-                  ]),
+                  getDrawModeValue() === 'multimode' && h('div', { class: 'info-card' }, [h('i', { class: 'fas fa-info-circle' }), '多模态模式：抽取页面同时显示单次、快速、惊心三种抽取按钮']),
                   
                   operationMode.value === 'range' && h('div', { class: 'range-inputs-centered' }, [
-                    h('div', { class: 'range-input-row' }, [
-                      h('label', [h('i', { class: 'fas fa-arrow-right', style: 'margin-right: 8px;' }), '起始学号']), 
-                      h('input', { 
-                        type: 'number', value: startNumber.value, min: 1, 
-                        onInput: e => startNumber.value = parseInt(e.target.value) || 1 
-                      })
-                    ]),
-                    h('div', { class: 'range-input-row' }, [
-                      h('label', [h('i', { class: 'fas fa-arrow-left', style: 'margin-right: 8px;' }), '结束学号']), 
-                      h('input', { 
-                        type: 'number', value: endNumber.value, min: startNumber.value, 
-                        onInput: e => endNumber.value = parseInt(e.target.value) || startNumber.value 
-                      })
-                    ])
+                    h('div', { class: 'range-input-row' }, [h('label', [h('i', { class: 'fas fa-arrow-right', style: 'margin-right: 8px;' }), '起始学号']), h('input', { type: 'number', value: startNumber.value, min: 1, onInput: e => startNumber.value = parseInt(e.target.value) || 1 })]),
+                    h('div', { class: 'range-input-row' }, [h('label', [h('i', { class: 'fas fa-arrow-left', style: 'margin-right: 8px;' }), '结束学号']), h('input', { type: 'number', value: endNumber.value, min: startNumber.value, onInput: e => endNumber.value = parseInt(e.target.value) || startNumber.value })])
                   ]),
                   
                   operationMode.value === 'list' && h('div', { class: 'student-panel' }, [
                     h('h3', { style: 'margin-bottom: 16px;' }, [h('i', { class: 'fas fa-users' }), ' 学生名单管理']),
-                    
                     h('div', { class: 'group-tabs' }, [
-                      ...studentGroups.value.map((g, i) => h('div', { 
-                        class: ['group-tab', { active: currentGroup.value === g.name }], 
-                        onClick: () => currentGroup.value = g.name 
-                      }, [
+                      ...studentGroups.value.map((g, i) => h('div', { class: ['group-tab', { active: currentGroup.value === g.name }], onClick: () => currentGroup.value = g.name }, [
                         h('span', `${g.name} (${g.students.length})`),
                         h('span', { class: 'delete-icon', onClick: e => { e.stopPropagation(); showRenameGroupModal(g.name, i); } }, '✏️'),
                         h('span', { class: 'delete-icon', onClick: e => { e.stopPropagation(); showDeleteGroupModal(g.name, i); } }, '❌')
                       ])),
-                      h('button', { class: 'btn btn-primary', style: 'padding: 4px 12px; font-size: 12px;', onClick: showAddGroupModal }, [
-                        h('i', { class: 'fas fa-plus' }), ' 新建'
-                      ])
+                      h('button', { class: 'btn btn-primary', style: 'padding: 4px 12px; font-size: 12px;', onClick: showAddGroupModal }, [h('i', { class: 'fas fa-plus' }), ' 新建'])
                     ]),
-                    
-                    h('div', { 
-                      class: 'upload-area', 
-                      onClick: () => handleFileSelect()
-                    }, [
-                      h('div', { class: 'upload-icon' }, h('i', { class: 'fas fa-file-excel' })), 
-                      h('h4', '点击选择Excel文件'), 
-                      h('p', { style: 'font-size: 12px; color: var(--text-tertiary);' }, '支持 .xlsx / .xls 格式')
+                    h('div', { class: ['upload-area', { 'drag-over': isDragOver.value }], onClick: () => handleFileSelect(), onDragover: handleDragOver, onDragleave: handleDragLeave, onDrop: handleDrop }, [
+                      h('div', { class: 'upload-icon' }, h('i', { class: 'fas fa-file-excel' })), h('h4', '点击选择Excel文件或拖拽文件到此区域'), h('p', { style: 'font-size: 12px; color: var(--text-tertiary);' }, '支持 .xlsx / .xls 格式，拖拽上传更便捷')
                     ]),
-                    
-                    h('div', { 
-                      class: 'upload-area', 
-                      style: 'margin-top: 8px; border-style: solid;', 
-                      onClick: () => showPasteImportModal()
-                    }, [
-                      h('div', { class: 'upload-icon' }, h('i', { class: 'fas fa-paste' })), 
-                      h('h4', '手动粘贴数据'), 
-                      h('p', { style: 'font-size: 12px; color: var(--text-tertiary);' }, '每行格式：学号,姓名')
+                    h('div', { class: 'upload-area', style: 'margin-top: 8px; border-style: solid;', onClick: () => showPasteImportModal() }, [
+                      h('div', { class: 'upload-icon' }, h('i', { class: 'fas fa-paste' })), h('h4', '手动粘贴数据'), h('p', { style: 'font-size: 12px; color: var(--text-tertiary);' }, '每行格式：学号,姓名')
                     ]),
-                    
-                    isMobile && h('div', { class: 'info-card', style: 'margin-top: 8px;' }, [
-                      h('i', { class: 'fas fa-mobile-alt' }), '移动端：点击上方按钮选择文件或手动粘贴'
-                    ]),
+                    isMobile && h('div', { class: 'info-card', style: 'margin-top: 8px;' }, [h('i', { class: 'fas fa-mobile-alt' }), '移动端：点击上方按钮选择文件或手动粘贴']),
                     
                     currentStudents.value.length > 0 ? h('div', [
                       h('div', { style: 'display: flex; justify-content: space-between; align-items: center; margin: 12px 0;' }, [
                         h('p', `共 ${currentStudents.value.length} 名学生`),
-                        h('button', { class: 'btn btn-danger', style: 'padding: 4px 12px; font-size: 12px;', onClick: showClearGroupModal }, [
-                          h('i', { class: 'fas fa-trash' }), ' 清空'
-                        ])
+                        h('button', { class: 'btn btn-danger', style: 'padding: 4px 12px; font-size: 12px;', onClick: showClearGroupModal }, [h('i', { class: 'fas fa-trash' }), ' 清空'])
                       ]),
                       h('table', { class: 'student-table' }, [
                         h('thead', [h('tr', [h('th', '学号'), h('th', '姓名'), h('th', { style: 'width: 60px;' }, '操作')])]),
@@ -2088,198 +1815,80 @@
                           h('td', [h('button', { class: 'btn btn-danger', style: 'padding: 2px 8px; font-size: 12px;', onClick: () => deleteStudent(s.student_id) }, '删除')])
                         ])))
                       ])
-                    ]) : h('div', { class: 'empty-state' }, [
-                      h('i', { class: 'fas fa-upload' }), h('p', '暂无学生数据，请上传Excel文件或手动粘贴')
-                    ])
+                    ]) : h('div', { class: 'empty-state' }, [h('i', { class: 'fas fa-upload' }), h('p', '暂无学生数据，请上传Excel文件、拖拽文件或手动粘贴')])
                   ]),
                   
-                  h('div', { class: 'checkbox-group' }, [
-                    h('input', { type: 'checkbox', id: 'noRepeat', checked: noRepeat.value, onChange: e => noRepeat.value = e.target.checked }),
-                    h('label', { for: 'noRepeat', style: 'margin: 0;' }, '不重复抽取')
-                  ]),
+                  h('div', { class: 'checkbox-group' }, [h('input', { type: 'checkbox', id: 'noRepeat', checked: noRepeat.value, onChange: e => noRepeat.value = e.target.checked }), h('label', { for: 'noRepeat', style: 'margin: 0;' }, '不重复抽取')]),
                   
-                  h('div', { class: 'btn-group' }, [
-                    h('button', { 
-                      class: 'btn btn-primary', 
-                      disabled: operationMode.value === 'list' && currentStudents.value.length === 0, 
-                      onClick: startDraw 
-                    }, [h('i', { class: 'fas fa-play' }), ' 开始抽取'])
-                  ]),
+                  h('div', { class: 'btn-group' }, [h('button', { class: 'btn btn-primary', disabled: operationMode.value === 'list' && currentStudents.value.length === 0, onClick: startDraw }, [h('i', { class: 'fas fa-play' }), ' 开始抽取'])]),
                   
                   h('div', { class: 'advanced-section' }, [
-                    h('div', { class: 'advanced-toggle', onClick: () => showAdvanced.value = !showAdvanced.value }, [
-                      h('i', { class: `fas fa-chevron-${showAdvanced.value ? 'up' : 'down'}` }), 
-                      ` ${showAdvanced.value ? '隐藏' : '显示'}高级设置`
-                    ]),
-                    
+                    h('div', { class: 'advanced-toggle', onClick: () => showAdvanced.value = !showAdvanced.value }, [h('i', { class: `fas fa-chevron-${showAdvanced.value ? 'up' : 'down'}` }), ` ${showAdvanced.value ? '隐藏' : '显示'}高级设置`]),
                     showAdvanced.value && h('div', { class: 'advanced-panel' }, [
                       h('h4', { style: 'margin-bottom: 16px;' }, [h('i', { class: 'fas fa-percentage' }), ' 概率权重设置']),
-                      h('p', { style: 'font-size: 12px; color: var(--text-tertiary); margin-bottom: 12px;' }, 
-                        '设置不同学号范围的抽取概率权重（仅学号范围模式有效）'
-                      ),
-                      
+                      h('p', { style: 'font-size: 12px; color: var(--text-tertiary); margin-bottom: 12px;' }, '设置不同学号范围的抽取概率权重（仅学号范围模式有效）'),
                       ...probabilityRanges.value.map((r, i) => h('div', { class: 'probability-item', key: i }, [
-                        h('input', { type: 'number', value: r.start, min: startNumber.value, max: r.end, onInput: e => r.start = parseInt(e.target.value) || startNumber.value }), 
-                        h('span', '至'),
-                        h('input', { type: 'number', value: r.end, min: r.start, max: endNumber.value, onInput: e => r.end = parseInt(e.target.value) || r.start }), 
-                        h('span', '权重'),
+                        h('input', { type: 'number', value: r.start, min: startNumber.value, max: r.end, onInput: e => r.start = parseInt(e.target.value) || startNumber.value }), h('span', '至'),
+                        h('input', { type: 'number', value: r.end, min: r.start, max: endNumber.value, onInput: e => r.end = parseInt(e.target.value) || r.start }), h('span', '权重'),
                         h('input', { type: 'number', value: r.weight, min: 1, style: 'width: 80px;', onInput: e => r.weight = parseInt(e.target.value) || 1 }),
                         h('span', { class: 'weight-badge' }, `${r.weight}倍`),
                         h('button', { class: 'btn btn-danger', style: 'padding: 4px 8px;', onClick: () => removeProbabilityRange(i) }, h('i', { class: 'fas fa-trash' }))
                       ])),
-                      
-                      h('button', { class: 'btn btn-outline', style: 'margin-bottom: 20px;', onClick: addProbabilityRange }, [
-                        h('i', { class: 'fas fa-plus' }), ' 添加范围'
-                      ]),
-                      
+                      h('button', { class: 'btn btn-outline', style: 'margin-bottom: 20px;', onClick: addProbabilityRange }, [h('i', { class: 'fas fa-plus' }), ' 添加范围']),
                       h('h4', { style: 'margin: 20px 0 16px;' }, [h('i', { class: 'fas fa-text-height' }), ' 字号设置']),
-                      
-                      h('div', { class: 'form-group' }, [
-                        h('label', { class: 'form-label' }, `姓名: ${nameFontSize.value}rem`), 
-                        h('input', { class: 'form-control', type: 'range', value: nameFontSize.value, min: 2, max: 10, step: 0.5, onInput: e => nameFontSize.value = parseFloat(e.target.value) })
-                      ]),
-                      h('div', { class: 'form-group' }, [
-                        h('label', { class: 'form-label' }, `学号: ${numberFontSize.value}pt`), 
-                        h('input', { class: 'form-control', type: 'range', value: numberFontSize.value, min: 40, max: 100, step: 5, onInput: e => numberFontSize.value = parseInt(e.target.value) })
-                      ]),
-                      
+                      h('div', { class: 'form-group' }, [h('label', { class: 'form-label' }, `姓名: ${nameFontSize.value}rem`), h('input', { class: 'form-control', type: 'range', value: nameFontSize.value, min: 2, max: 10, step: 0.5, onInput: e => nameFontSize.value = parseFloat(e.target.value) })]),
+                      h('div', { class: 'form-group' }, [h('label', { class: 'form-label' }, `学号: ${numberFontSize.value}pt`), h('input', { class: 'form-control', type: 'range', value: numberFontSize.value, min: 40, max: 100, step: 5, onInput: e => numberFontSize.value = parseInt(e.target.value) })]),
                       (getDrawModeValue() === 'tension' || getDrawModeValue() === 'multimode') && [
-                        h('div', { class: 'form-group' }, [
-                          h('label', { class: 'form-label' }, `闪烁次数: ${tensionFlashCount.value}`), 
-                          h('input', { class: 'form-control', type: 'range', value: tensionFlashCount.value, min: 5, max: 30, step: 1, onInput: e => tensionFlashCount.value = parseInt(e.target.value) })
-                        ]),
-                        h('div', { class: 'form-group' }, [
-                          h('label', { class: 'form-label' }, `闪烁速度: ${tensionFlashSpeed.value}ms`), 
-                          h('input', { class: 'form-control', type: 'range', value: tensionFlashSpeed.value, min: 50, max: 300, step: 10, onInput: e => tensionFlashSpeed.value = parseInt(e.target.value) })
-                        ])
+                        h('div', { class: 'form-group' }, [h('label', { class: 'form-label' }, `闪烁次数: ${tensionFlashCount.value}`), h('input', { class: 'form-control', type: 'range', value: tensionFlashCount.value, min: 5, max: 30, step: 1, onInput: e => tensionFlashCount.value = parseInt(e.target.value) })]),
+                        h('div', { class: 'form-group' }, [h('label', { class: 'form-label' }, `闪烁速度: ${tensionFlashSpeed.value}ms`), h('input', { class: 'form-control', type: 'range', value: tensionFlashSpeed.value, min: 50, max: 300, step: 10, onInput: e => tensionFlashSpeed.value = parseInt(e.target.value) })])
                       ],
-                      
-                      h('button', { class: 'btn btn-primary', style: 'width: 100%;', onClick: applyFontSettings }, [
-                        h('i', { class: 'fas fa-check' }), ' 应用设置'
-                      ])
+                      h('button', { class: 'btn btn-primary', style: 'width: 100%;', onClick: applyFontSettings }, [h('i', { class: 'fas fa-check' }), ' 应用设置'])
                     ])
                   ]),
-                  
-                  h('div', { class: 'footer' }, [
-                    '© 2025 Herryfyh | v5.9.3 | ',
-                    h('a', { href: 'https://github.com/HerryABU/student-number-picker', target: '_blank' }, 'GitHub'),
-                    ' | ',
-                    h('a', { href: 'https://blog.csdn.net/herryfyh', target: '_blank' }, 'CSDN')
-                  ])
+                  h('div', { class: 'footer' }, ['© 2025 Herryfyh | v5.9.5 | ', h('a', { href: 'https://github.com/HerryABU/student-number-picker', target: '_blank' }, 'GitHub'), ' | ', h('a', { href: 'https://blog.csdn.net/herryfyh', target: '_blank' }, 'CSDN')])
                 ]);
               }
               
               function renderDrawPage() {
                 return h('div', [
-                  h('h1', { class: 'page-title' }, [
-                    h('i', { class: 'fas fa-random' }), 
-                    ' 抽取结果', 
-                    getDrawModeValue() === 'multimode' && h('span', { 
-                      style: 'font-size: 14px; margin-left: 12px; color: var(--primary-color);' 
-                    }, [
-                      h('i', { class: 'fas fa-layer-group' }), ' 多模态'
-                    ])
-                  ]),
-                  
+                  h('h1', { class: 'page-title' }, [h('i', { class: 'fas fa-random' }), ' 抽取结果', getDrawModeValue() === 'multimode' && h('span', { style: 'font-size: 14px; margin-left: 12px; color: var(--primary-color);' }, [h('i', { class: 'fas fa-layer-group' }), ' 多模态'])]),
                   h('div', { class: 'display-area' }, [
                     currentStudent.value.name && h('div', { class: ['student-name-display', animationClass.value] }, currentStudent.value.name),
                     h('div', { class: ['student-id-display', animationClass.value] }, currentNumber.value),
-                    multiDrawResults.value.length > 0 && h('div', { class: 'multi-results' }, 
-                      multiDrawResults.value.map((item, i) => h('div', { class: 'result-chip', key: i }, [
-                        h('span', { style: 'font-weight: 700;' }, item.student_id), 
-                        item.name && h('span', { style: 'margin-left: 6px;' }, item.name)
-                      ]))
-                    )
+                    multiDrawResults.value.length > 0 && h('div', { class: 'multi-results' }, multiDrawResults.value.map((item, i) => h('div', { class: 'result-chip', key: i }, [h('span', { style: 'font-weight: 700;' }, item.student_id), item.name && h('span', { style: 'margin-left: 6px;' }, item.name)])))
                   ]),
                   
                   getDrawModeValue() !== 'multimode' ? h('div', { class: 'btn-group' }, [
-                    getDrawModeValue() === 'single' && h('button', { class: 'btn btn-primary', onClick: drawSingle }, [
-                      h('i', { class: 'fas fa-dice' }), ' 抽取'
-                    ]),
-                    getDrawModeValue() === 'quick' && h('button', { class: 'btn btn-primary', onClick: toggleContinuous }, [
-                      h('i', { class: `fas fa-${isContinuous.value ? 'stop' : 'play'}` }), 
-                      ` ${isContinuous.value ? '停止' : '快速抽取'}`
-                    ]),
-                    getDrawModeValue() === 'tension' && h('button', { class: 'btn btn-primary', onClick: startTension }, [
-                      h('i', { class: 'fas fa-heartbeat' }), ' 开始点名'
-                    ]),
-                    h('button', { class: 'btn btn-success', onClick: drawMultiWithAnimation }, [
-                      h('i', { class: 'fas fa-bolt' }), ` 连抽${multiDrawCount.value}次`
-                    ]),
-                    h('button', { class: 'btn btn-warning', onClick: () => showBatchPanel.value = !showBatchPanel.value }, [
-                      h('i', { class: 'fas fa-users' }), ' 批量'
-                    ]),
-                    h('button', { class: 'btn btn-outline', onClick: goBack }, [
-                      h('i', { class: 'fas fa-arrow-left' }), ' 返回'
-                    ]),
-                    usedList.value.length > 0 && h('button', { class: 'btn btn-danger', onClick: showResetHistoryModal }, [
-                      h('i', { class: 'fas fa-sync-alt' }), ' 重置'
-                    ])
+                    getDrawModeValue() === 'single' && h('button', { class: 'btn btn-primary', onClick: drawSingle }, [h('i', { class: 'fas fa-dice' }), ' 抽取']),
+                    getDrawModeValue() === 'quick' && h('button', { class: 'btn btn-primary', onClick: toggleContinuous }, [h('i', { class: `fas fa-${isContinuous.value ? 'stop' : 'play'}` }), ` ${isContinuous.value ? '停止' : '快速抽取'}`]),
+                    getDrawModeValue() === 'tension' && h('button', { class: 'btn btn-primary', onClick: startTension }, [h('i', { class: 'fas fa-heartbeat' }), ' 开始点名']),
+                    h('button', { class: 'btn btn-success', onClick: drawMultiWithAnimation }, [h('i', { class: 'fas fa-bolt' }), ` 连抽${multiDrawCount.value}次`]),
+                    h('button', { class: 'btn btn-warning', onClick: () => showBatchPanel.value = !showBatchPanel.value }, [h('i', { class: 'fas fa-users' }), ' 批量']),
+                    h('button', { class: 'btn btn-outline', onClick: goBack }, [h('i', { class: 'fas fa-arrow-left' }), ' 返回']),
+                    usedList.value.length > 0 && h('button', { class: 'btn btn-danger', onClick: showResetHistoryModal }, [h('i', { class: 'fas fa-sync-alt' }), ' 重置'])
                   ]) : [
                     h('div', { class: 'btn-group' }, [
-                      h('button', { class: 'btn btn-primary', style: 'flex:1;', onClick: drawSingle }, [
-                        h('i', { class: 'fas fa-dice' }), ' 单次'
-                      ]),
-                      h('button', { class: 'btn btn-primary', style: 'flex:1;', onClick: toggleContinuous }, [
-                        h('i', { class: `fas fa-${isContinuous.value ? 'stop' : 'play'}` }), 
-                        ` ${isContinuous.value ? '停止' : '快速'}`
-                      ]),
-                      h('button', { class: 'btn btn-primary', style: 'flex:1;', onClick: startTension }, [
-                        h('i', { class: 'fas fa-heartbeat' }), ' 惊心'
-                      ])
+                      h('button', { class: 'btn btn-primary', style: 'flex:1;', onClick: drawSingle }, [h('i', { class: 'fas fa-dice' }), ' 单次']),
+                      h('button', { class: 'btn btn-primary', style: 'flex:1;', onClick: toggleContinuous }, [h('i', { class: `fas fa-${isContinuous.value ? 'stop' : 'play'}` }), ` ${isContinuous.value ? '停止' : '快速'}`]),
+                      h('button', { class: 'btn btn-primary', style: 'flex:1;', onClick: startTension }, [h('i', { class: 'fas fa-heartbeat' }), ' 惊心'])
                     ]),
                     h('div', { class: 'btn-group' }, [
-                      h('button', { class: 'btn btn-success', onClick: drawMultiWithAnimation }, [
-                        h('i', { class: 'fas fa-bolt' }), ` 连抽${multiDrawCount.value}`
-                      ]),
-                      h('button', { class: 'btn btn-warning', onClick: () => showBatchPanel.value = !showBatchPanel.value }, [
-                        h('i', { class: 'fas fa-users' }), ' 批量'
-                      ]),
-                      h('button', { class: 'btn btn-outline', onClick: goBack }, [
-                        h('i', { class: 'fas fa-arrow-left' }), ' 返回'
-                      ]),
-                      usedList.value.length > 0 && h('button', { class: 'btn btn-danger', onClick: showResetHistoryModal }, [
-                        h('i', { class: 'fas fa-sync-alt' }), ' 重置'
-                      ])
+                      h('button', { class: 'btn btn-success', onClick: drawMultiWithAnimation }, [h('i', { class: 'fas fa-bolt' }), ` 连抽${multiDrawCount.value}`]),
+                      h('button', { class: 'btn btn-warning', onClick: () => showBatchPanel.value = !showBatchPanel.value }, [h('i', { class: 'fas fa-users' }), ' 批量']),
+                      h('button', { class: 'btn btn-outline', onClick: goBack }, [h('i', { class: 'fas fa-arrow-left' }), ' 返回']),
+                      usedList.value.length > 0 && h('button', { class: 'btn btn-danger', onClick: showResetHistoryModal }, [h('i', { class: 'fas fa-sync-alt' }), ' 重置'])
                     ])
                   ],
                   
-                  showBatchPanel.value && h('div', { 
-                    style: 'margin-top: 16px; padding: 16px; background: var(--bg-tertiary); border-radius: 8px;' 
-                  }, [
-                    h('div', { class: 'form-group' }, [
-                      h('label', { class: 'form-label' }, '连抽次数:'), 
-                      h('input', { 
-                        class: 'form-control', type: 'number', value: multiDrawCount.value, min: 1, max: 50, 
-                        onInput: e => multiDrawCount.value = parseInt(e.target.value) || 5 
-                      })
-                    ]),
-                    h('div', { class: 'form-group' }, [
-                      h('label', { class: 'form-label' }, '抽取人数:'), 
-                      h('input', { 
-                        class: 'form-control', type: 'number', value: batchDrawCount.value, min: 1, max: availableCount.value, 
-                        onInput: e => batchDrawCount.value = parseInt(e.target.value) || 1 
-                      })
-                    ]),
-                    h('button', { class: 'btn btn-primary', onClick: drawBatchWithAnimation }, [
-                      h('i', { class: 'fas fa-user-friends' }), ` 抽取${batchDrawCount.value}人`
-                    ])
+                  showBatchPanel.value && h('div', { style: 'margin-top: 16px; padding: 16px; background: var(--bg-tertiary); border-radius: 8px;' }, [
+                    h('div', { class: 'form-group' }, [h('label', { class: 'form-label' }, '连抽次数:'), h('input', { class: 'form-control', type: 'number', value: multiDrawCount.value, min: 1, max: 50, onInput: e => multiDrawCount.value = parseInt(e.target.value) || 5 })]),
+                    h('div', { class: 'form-group' }, [h('label', { class: 'form-label' }, '抽取人数:'), h('input', { class: 'form-control', type: 'number', value: batchDrawCount.value, min: 1, max: availableCount.value, onInput: e => batchDrawCount.value = parseInt(e.target.value) || 1 })]),
+                    h('button', { class: 'btn btn-primary', onClick: drawBatchWithAnimation }, [h('i', { class: 'fas fa-user-friends' }), ` 抽取${batchDrawCount.value}人`])
                   ]),
                   
                   usedList.value.length > 0 && h('div', { class: 'history-section' }, [
-                    h('div', { class: 'history-header' }, [
-                      h('span', `已抽取 (${usedList.value.length}/${totalCount.value})`), 
-                      h('button', { 
-                        style: 'background: none; border: none; color: var(--text-tertiary); cursor: pointer;', 
-                        onClick: showClearHistoryModal 
-                      }, [h('i', { class: 'fas fa-trash' }), ' 清除'])
-                    ]),
-                    h('div', { class: 'history-list' }, 
-                      usedList.value.map((item, i) => h('div', { 
-                        class: ['history-item', { latest: i === usedList.value.length - 1 }], 
-                        key: i 
-                      }, `${item.student_id}${item.name ? ' ' + item.name : ''}`))
-                    )
+                    h('div', { class: 'history-header' }, [h('span', `已抽取 (${usedList.value.length}/${totalCount.value})`), h('button', { style: 'background: none; border: none; color: var(--text-tertiary); cursor: pointer;', onClick: showClearHistoryModal }, [h('i', { class: 'fas fa-trash' }), ' 清除'])]),
+                    h('div', { class: 'history-list' }, usedList.value.map((item, i) => h('div', { class: ['history-item', { latest: i === usedList.value.length - 1 }], key: i }, `${item.student_id}${item.name ? ' ' + item.name : ''}`)))
                   ])
                 ]);
               }
