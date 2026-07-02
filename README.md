@@ -1,330 +1,287 @@
+---
 
+# 🚀 智能学号抽取系统 V6.0.0：从“能用”到“好用”的工程化重构之路
 
-# 《智能学号抽取系统》V5.9.3 发布：跨平台全覆盖，从课堂到指尖的互动革命
+> **摘要**：在 V5.9.5 修复移动端文件读取 Bug 后，我们迎来了 V6.0.0 的全面升级。本文深度解析 V6.0.0 如何通过 **Vue 3 Render Function** 实现零模板依赖的组件化架构，并详细拆解 **PK 对决模式**、**数学公差随机算法** 以及 **Excel 多 Sheet 智能解析** 的核心代码实现。这不仅是一个点名工具，更是一次纯前端工程化的最佳实践。
 
-> 接续 V5.8.2，V5.9.3 带来多模态抽取、深度移动端适配、Electron 桌面三端原生应用，以及鸿蒙版即将上线！
+## 📌 前言：为什么需要 V6.0.0？
 
-**发布于 2025年12月** · 阅读约 12 分钟
+V5.9.5 解决了“能选但读不出”的痛点，但随着用户量的增长，老师们提出了更深层的需求：
+1.  **公平性质疑**：“连续抽到 5 号和 6 号，是不是程序有问题？”
+2.  **课堂互动性**：“能不能让男生和女生来一场 PK？”
+3.  **数据管理效率**：“一个 Excel 里有三个班，我不想拆分成三个文件。”
+
+为了回应这些需求，V6.0.0 没有选择简单的功能堆砌，而是进行了**底层架构的重构**。我们摒弃了传统的 HTML 模板字符串，全面拥抱 **Vue 3 Composition API** 与 **Render Function (h 函数)**，实现了真正的模块化与高性能渲染。
 
 ---
 
-## 📌 一、前言
+## 🏗️ 一、架构升级：模块化与并行加载
 
-距离 V5.8.2 的发布已经过去数月。在那次更新中，我们推出了“惊心动魄模式”，让课堂点名从“工具”变成了“游戏”，收获了无数老师和学生的好评。
-
-但我们也听到了更多声音：
-
-> “能在手机上用吗？教室的平板也想装一个。”  
-> “能不能打包成 exe？每次打开浏览器有点麻烦。”  
-> “Mac 电脑能用吗？Linux 呢？”  
-> “鸿蒙系统现在很火，支持吗？”
-
-**V5.9.3，就是对这些问题的回答。**
-
-这一次，我们不再满足于“好用的网页工具”，而是将智能学号抽取系统打造成一个**真正跨平台、全场景的教学互动解决方案**。
-
-> 🎯 **一句话概括 V5.9.3：** 从 Web 工具进化为覆盖桌面、移动、国产操作系统的全平台应用。
-
----
-
-## 🚀 二、V5.9.3 核心亮点速览
-
-| 亮点 | 说明 |
-| :--- | :--- |
-| **🎮 多模态抽取模式** | 单次、快速、惊心动魄三种模式同屏显示，随心切换 |
-| **📱 深度移动端适配** | 视口控制、响应式布局、手指友好交互，手机端体验一流 |
-| **📋 手动粘贴导入** | 无需 Excel 文件，复制粘贴即可完成名单导入 |
-| **🔗 全配置 URL 分享** | 所有设置编码到链接中，一键分享，完美还原 |
-| **💻 Windows 原生应用** | 基于 Electron 打包的 `.exe` 安装包 |
-| **🍎 macOS 原生应用** | 基于 Electron 打包的 `.dmg` / `.app` （🙏）|
-| **🐧 Linux 原生应用** | 基于 Electron 打包的 `.AppImage` / `.deb` |
-| **📱 Android APK** | 基于 HBuilderX 打包的移动端应用 |
-| **🔷 鸿蒙版本** | 🚧 开发中，即将上线 |
-| **🍏 iOS / iPadOS** | 🙏 诚邀社区开发者共同完成 |
-
----
-
-## 🎮 三、新特性详解
-
-### 3.1 多模态模式：一屏掌控所有抽取方式
-
-在 V5.9.3 中，我们新增了 **“多模态”抽取模式**。
-
-**之前的版本**：你只能在设置页面选择一种抽取方式（单次 OR 快速 OR 惊心），进入抽取页面后只有这一种方式可用。
-
-**V5.9.3 的多模态模式**：单次、快速、惊心动魄三个按钮**同时显示在抽取页面**。
-
-```html
-<!-- 多模态模式的按钮组 -->
-<div class="btn-group">
-  <button class="btn btn-primary">🎲 单次</button>
-  <button class="btn btn-primary">⚡ 快速</button>
-  <button class="btn btn-primary">💓 惊心</button>
-</div>
-```
-
-**使用场景**：
-- 课堂开始时用“快速抽取”活跃气氛
-- 回答问题时用“单次抽取”公平随机
-- 评选“幸运之星”时用“惊心动魄”制造悬念
-
-> 💡 **教师反馈**：“以前要来回切换模式，现在一个页面全搞定，太方便了！”
-
----
-
-### 3.2 手动粘贴导入：移动端的“救命稻草”
-
-在手机上选择 Excel 文件总是不太方便。V5.9.3 新增了**手动粘贴导入弹窗**：
-
-**操作步骤**：
-1. 点击“手动粘贴数据”区域
-2. 在弹出的对话框中粘贴学生数据
-3. 点击“导入”，数据立即生效
-
-**支持的格式**：
-```text
-001,张三
-002 李四
-003,王五
-```
-（支持中英文逗号、空格、制表符分隔）
-
-> 💡 **适用场景**：微信/QQ 收到名单、临时快速录入、手机端不便选文件时。
-
----
-
-### 3.3 全配置 URL 分享：你的设置，一键共享
-
-V5.9.3 将**几乎所有用户配置**都纳入了 URL 参数同步：
-
-- 抽取模式（单次/快速/惊心/多模态）
-- 学号范围（起始～结束）
-- 姓名字号、学号大小
-- 连抽次数、闪烁次数、闪烁速度
-- 概率权重范围
-
-**使用方法**：点击右上角的 **分享按钮**，系统自动生成包含当前所有配置的链接。复制发送给同事，对方打开链接就能**完美还原你的设置**。
+### 1.1 入口优化 (`main.js`)
+V6.0.0 采用了异步并行加载策略，显著提升了首屏体验。
 
 ```javascript
-// 核心实现：概率权重范围编码
-const encodeProbabilityRanges = (ranges) => {
-  return ranges.map(r => `${r.start}-${r.end}-${r.weight}`).join(',');
+// main.js 核心逻辑
+async function init() {
+  var loadingEl = createLoadingElement(); // 创建 Loading 界面
+  document.body.appendChild(loadingEl);
+  
+  try {
+    // 1. 并行加载 CDN 依赖（Vue, XLSX, FontAwesome）
+    var cdnTasks = CDN_DEPS.map(function(dep) {
+      if (dep.type === 'css') return loadStylesheet(dep.url);
+      return loadScript(dep.url, dep.global);
+    });
+    await Promise.all(cdnTasks);
+
+    // 2. 并行加载本地模块（core, audio, app, components...）
+    var localTasks = LOCAL_MODULES.map(function(mod) {
+      return loadScript(mod, null);
+    });
+    await Promise.all(localTasks);
+
+    loadingEl.remove();
+    // 3. 启动应用
+    if (window.__SNP && window.__SNP.createApp) {
+      window.__SNP.createApp();
+    }
+  } catch (e) {
+    // 错误处理...
+  }
+}
+```
+
+### 1.2 命名空间管理
+所有核心逻辑挂载在 `window.__SNP` 下，避免全局污染：
+*   `__SNP.core`: 工具函数（Excel 解析、性别检测）。
+*   `__SNP.audio`: 音效与语音播报。
+*   `__SNP.components`: UI 组件库。
+*   `__SNP.createApp`: Vue 应用入口。
+
+---
+
+## ⚔️ 二、核心功能深度解析
+
+### 2.1 PK 对决模式 (Battle Mode)
+这是 V6.0.0 最亮眼的功能。系统会自动识别名单中的性别数据，实现智能分队。
+
+#### 核心逻辑 (`app.js` - `getPKGroups`)
+```javascript
+var getPKGroups = function() {
+  var all;
+  if (operationMode.value === 'list') {
+    all = JSON.parse(JSON.stringify(currentStudents.value));
+  } else {
+    all = getAllItems(); // 范围模式生成虚拟列表
+  }
+
+  // 策略1：如果有性别数据，按性别分队
+  if (operationMode.value === 'list' && hasGenderData.value) {
+    var sideA = all.filter(function(s) { return s.gender === 'male'; });
+    var sideB = all.filter(function(s) { return s.gender === 'female'; });
+    return { sideA: sideA, sideB: sideB, sideALabel: '男生', sideBLabel: '女生' };
+  }
+
+  // 策略2：无性别数据或范围模式，随机均分两队
+  var shuffled = all.sort(function() { return Math.random() - 0.5; });
+  var mid = Math.ceil(shuffled.length / 2);
+  return { 
+    sideA: shuffled.slice(0, mid), 
+    sideB: shuffled.slice(mid), 
+    sideALabel: 'A队', 
+    sideBLabel: 'B队' 
+  };
+};
+```
+
+#### 渲染逻辑 (`DisplayArea.js`)
+使用 `h` 函数动态生成红蓝对抗的 UI：
+```javascript
+SNP.components.PKInlineResult = function(h, s) {
+  return h('div', { class: 'pk-results-inline' }, [
+    // A 阵营
+    h('div', { class: 'pk-inline-side pk-inline-a' }, [
+      h('div', { class: 'pk-inline-label' }, '🔵 ' + s.pkResults.value.sideALabel),
+      s.pkResults.value.sideA.map(function(st) {
+        return h('span', { class: 'pk-chip' }, st.student_id + ' ' + st.name);
+      })
+    ]),
+    // VS 标识
+    h('div', { class: 'pk-inline-vs' }, '⚡ VS ⚡'),
+    // B 阵营
+    h('div', { class: 'pk-inline-side pk-inline-b' }, [
+      h('div', { class: 'pk-inline-label' }, '🔴 ' + s.pkResults.value.sideBLabel),
+      s.pkResults.value.sideB.map(function(st) {
+        return h('span', { class: 'pk-chip' }, st.student_id + ' ' + st.name);
+      })
+    ])
+  ]);
+};
+```
+
+### 2.2 公差区间算法 (Tolerance Interval)
+为了解决“伪随机”带来的质疑，我们引入了**公差限制**。如果开启了公差限制（例如 1~5），且上一次抽中了 `10` 号，那么下一次抽取时，系统会自动过滤掉 `5-15` 号之间的学号。
+
+#### 核心算法 (`app.js` - `getAvailableItems`)
+```javascript
+if (toleranceEnabled.value && usedList.value.length > 0) {
+  var lastId = usedList.value[usedList.value.length - 1].student_id;
+  var lastNum = parseInt(lastId);
+  if (!isNaN(lastNum)) {
+    var filtered = items.filter(function(s) {
+      var num = parseInt(s.student_id);
+      if (isNaN(num)) return true;
+      var diff = Math.abs(num - lastNum);
+      // 只有差值在 [min, max] 范围内的才保留
+      return diff >= toleranceMin.value && diff <= toleranceMax.value;
+    });
+    if (filtered.length > 0) items = filtered; // 如果有符合条件的，则缩小候选池
+  }
+}
+```
+**效果**：确保连续两次抽取的结果在数字上保持一定的“距离”，让随机性看起来更加均匀和公平。
+
+### 2.3 Excel 多 Sheet 智能解析
+不再需要拆分 Excel 文件。`core.js` 中的 `parseExcelAllSheets` 函数会遍历所有工作表。
+
+#### 解析逻辑 (`core.js`)
+```javascript
+SNP.parseExcelAllSheets = function(arrayBuffer, onSuccess, onError) {
+  var wb = XLSX.read(arrayBuffer, { type: 'array' });
+  var allSheets = [];
+  
+  for (var si = 0; si < wb.SheetNames.length; si++) {
+    var sheetName = wb.SheetNames[si];
+    var ws = wb.Sheets[sheetName];
+    var rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    var students = [];
+    var genderColIndex = -1;
+
+    // 1. 自动识别性别列
+    for (var i = 0; i < rows.length; i++) {
+      if (i === 0) { // 检查表头
+        for (var j = 0; j < rows[i].length; j++) {
+          if (SNP.isGenderColumnName(rows[i][j])) { 
+            genderColIndex = j; 
+            break; 
+          }
+        }
+      }
+      // 2. 提取学生数据并打上 sheet 标签
+      var studentId = String(rows[i][0] || '').trim();
+      if (!studentId) continue;
+      var name = rows[i].length > 1 ? String(rows[i][1] || '').trim() : '';
+      var gender = '';
+      if (genderColIndex >= 0) {
+        gender = SNP.detectGender(rows[i][genderColIndex]);
+      }
+      students.push({ student_id: studentId, name: name, gender: gender, sheet: sheetName });
+    }
+    if (students.length > 0) {
+      allSheets.push({ name: sheetName, rowCount: students.length, students: students });
+    }
+  }
+  onSuccess(allSheets);
 };
 ```
 
 ---
 
-## 📦 四、跨平台架构：一次开发，多端交付
+## 🎨 三、UI 渲染引擎：Vue 3 Render Function
 
-V5.9.3 最大的里程碑是完成了**多平台原生应用**的打包与分发。
+V6.0.0 放弃了 `.vue` 文件和模板字符串，直接使用 `Vue.h` 函数构建虚拟 DOM。这种写法虽然代码量稍多，但逻辑极其清晰，且完全由数据驱动。
 
-### 4.1 技术架构图
-
-```
-┌─────────────────────────────────────────────────┐
-│                    核心 UI 层                     │
-│         (Vue 3 + HTML/CSS/JS 单份代码)            │
-└─────────────────────────────────────────────────┘
-                         │
-         ┌───────────────┼───────────────┐
-         ▼               ▼               ▼
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│  Electron   │ │  HBuilderX  │ │   浏览器    │
-│  桌面打包   │ │  移动打包    │ │  直接访问   │
-└─────────────┘ └─────────────┘ └─────────────┘
-      │               │               │
-      ▼               ▼               ▼
-  Windows/macOS（🙏）    Android       Web 版本
-  /Linux          鸿蒙 (即将)
-```
-
-### 4.2 桌面三端：Electron 统一打包
-
-| 平台 | 格式 | 状态 | 技术方案 |
-| :--- | :--- | :---: | :--- |
-| **Windows** | `.exe` 安装包 | ✅ 已发布 | Electron |
-| **macOS** | `.dmg` / `.app` | 🙏 | Electron |
-| **Linux** | `.AppImage` / `.deb` | ✅ 已发布 | Electron |
-
-> 💡 **Electron 的优势**：一套 HTML/CSS/JS 代码，直接打包成三个桌面平台的原生应用，无需为每个平台单独开发，维护成本极低。
-
-### 4.3 移动端：HBuilderX 打包
-
-| 平台 | 格式 | 状态 | 技术方案 |
-| :--- | :--- | :---: | :--- |
-| **Android** | `.apk` | ✅ 已发布 | HBuilderX 5+ App |
-| **鸿蒙 HarmonyOS** | `.hap` | 🚧 开发中 | HBuilderX 兼容打包 |
-
-### 4.4 苹果生态：期待社区贡献
-
-| 平台 | 状态 | 说明 |
-| :--- | :---: | :--- |
-| **iOS / iPadOS/MAC** | 🙏 待贡献 | 作者暂无苹果设备，**诚邀有 Apple 生态开发经验的朋友一起完成适配！** |
-
-> 📢 **开源协作邀请**：如果你熟悉 Swift、Xcode 或 iOS 签名打包流程，欢迎通过 GitHub 联系作者！
-
----
-
-## 📱 五、移动端深度适配：不是“能用”，而是“好用”
-
-除了打包成 App，V5.9.3 在移动端体验上也做了大量专门优化。
-
-### 5.1 视口完美控制
-
-```html
-<meta name="viewport" content="width=device-width, initial-scale=1.0, 
-     maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-```
-
-- `user-scalable=no`：防止用户误缩放导致布局错乱
-- `viewport-fit=cover`：完美适配 iPhone 等全面屏机型
-
-### 5.2 响应式布局重构
-
-在手机上，原本并排的按钮、模式卡片会**自动纵向排列**：
-
-```css
-@media (max-width: 768px) {
-  .mode-switch-container { flex-direction: column; }
-  .btn { width: 100%; }
-  :root {
-    --name-size: 3rem;    /* 手机上学号缩小显示 */
-    --number-size: 50pt;
-  }
-}
-```
-
-### 5.3 智能文件选择兼容层
-
-系统会智能检测运行环境，同时支持普通浏览器、Electron 和 HBuilderX 原生 App：
-
+### 3.1 组件化示例 (`StudentPanel.js`)
 ```javascript
-function selectExcelFileCompat(callback) {
-  // 优先使用 HBuilderX 5+ 原生 API
-  if (typeof plus !== 'undefined' && plus.io) {
-    plus.io.chooseFile({ ... });
-  } else {
-    // 降级到标准 HTML 文件选择
-    fallbackFileInput(callback);
-  }
+SNP.components.StudentPanel = function(h, s) {
+  return h('div', { class: 'student-panel' }, [
+    h('h3', '学生名单管理'),
+    // 分组标签页
+    h('div', { class: 'group-tabs' }, 
+      s.studentGroups.value.map(function(g, i) {
+        return h('div', { 
+          class: ['group-tab', { active: s.currentGroup.value === g.name }],
+          onClick: function() { s.currentGroup.value = g.name; }
+        }, g.name);
+      })
+    ),
+    // 上传区域
+    h('div', { 
+      class: ['upload-area', { 'drag-over': s.isDragOver.value }],
+      onDrop: s.handleDrop 
+    }, '点击或拖拽上传 Excel'),
+    // 学生表格
+    h('table', { class: 'student-table' }, 
+      s.currentStudents.value.map(function(st) {
+        return h('tr', [
+          h('td', st.student_id),
+          h('td', st.name),
+          h('td', st.gender === 'male' ? '男' : '女')
+        ]);
+      })
+    )
+  ]);
+};
+```
+
+### 3.2 样式系统 (`variables.css`)
+我们定义了一套完整的 CSS 变量体系，使得**深色模式 (Dark Mode)** 的切换变得极其简单：
+```css
+:root {
+  --primary-color: #4361ee;
+  --bg-primary: #f8fafc;
+  --text-primary: #1e293b;
+}
+.dark-mode {
+  --primary-color: #5e72e4;
+  --bg-primary: #0f172a;
+  --text-primary: #f1f5f9;
 }
 ```
 
 ---
 
-## 📊 六、版本功能演进一览（V5.8.2 → V5.9.3）
+## 📊 四、版本对比总结
 
-| 功能 | V5.8.2 | V5.9.3 |
-| :--- | :---: | :---: |
-| 学号范围模式 | ✅ | ✅ |
-| 名单导入模式 | ✅ | ✅ |
-| 单次抽取模式 | ✅ | ✅ |
-| 快速抽取模式 | ✅ | ✅ |
-| 惊心动魄模式 | ✅ | ✅ |
-| **多模态模式** | ❌ | ✅ |
-| Excel 文件导入 | ✅ | ✅ |
-| **手动粘贴导入** | ❌ | ✅ |
-| 批量抽取/连抽 | ✅ | ✅ |
-| 概率权重设置 | ✅ | ✅ |
-| 深色模式 | ✅ | ✅ |
-| URL 配置分享 | 基础 | **全面** |
-| 移动端适配 | 基础 | **完善** |
-| **Windows 原生应用** | ❌ | ✅ |
-| **macOS 原生应用** | ❌ | 🙏 |
-| **Linux 原生应用** | ❌ | ✅ |
-| **Android APK** | ❌ | ✅ |
-| **鸿蒙版本** | ❌ | 🚧 |
-| **iOS 版本** | ❌ | 🙏 |
+| 功能/特性 | V5.9.5 | V6.0.0 |
+|-----------|--------|--------|
+| **架构模式** | 单文件/少模块 | **全组件化模块化** |
+| **渲染方式** | 模板字符串 | **Vue 3 Render Function** |
+| **PK 对决** | ❌ | ✅ **支持男女/随机分队** |
+| **公差算法** | ❌ | ✅ **避免连号，提升公平感** |
+| **Excel 解析** | 单 Sheet | ✅ **多 Sheet 自动识别+筛选** |
+| **多模态抽取** | ❌ | ✅ **一键切换多种模式** |
+| **移动端兼容** | ✅ (已修复) | ✅ (保持稳定) |
 
 ---
 
-## 💿 七、下载与使用
+## 💡 五、经验与启示
 
-### 方式一：桌面原生应用（推荐）
+### 5.1 组件化是复杂交互的解药
+当交互逻辑变得复杂（如 PK 模式下的红蓝对抗、多 Sheet 的勾选联动）时，传统的 DOM 操作会变得难以维护。使用 Vue 的响应式数据和 Render Function，让 UI 成为数据的自然映射。
 
-| 平台 | 下载文件 | 适用系统 |
-| :--- | :--- | :--- |
-| Windows | `智能学号抽取系统-Setup.exe` | Windows 7/10/11 |
-| macOS | `智能学号抽取系统.dmg` | macOS 10.13+ |
-| Linux | `智能学号抽取系统.AppImage` | Ubuntu/Debian/CentOS 等 |
+### 5.2 标准 API 永远是最可靠的
+无论框架如何迭代，浏览器原生的 `FileReader`、`AudioContext` 和 `SpeechSynthesis` 始终是我们最坚实的基石。私有 API 虽然方便，但往往伴随着兼容性的陷阱。
 
-> 📥 **下载地址**：[GitHub Releases 页面](https://github.com/HerryABU/student-number-picker/releases)
-
-### 方式二：Android 移动端
-
-- 下载 `智能学号抽取系统.apk`，直接安装到手机或平板
-
-### 方式三：Web 在线版
-
-- 直接访问项目 GitHub Pages 或部署到自己的服务器
-- 适合临时使用或无法安装软件的设备
+### 5.3 用户体验在于“细节”
+*   **公差算法**解决了学生对随机性的质疑。
+*   **多 Sheet 解析**节省了老师拆分文件的时间。
+*   **PK 音效**增强了课堂的仪式感。
 
 ---
 
-## 🔧 八、技术栈一览
+## 📦 六、下载与使用
 
-| 层级 | 技术 |
-| :--- | :--- |
-| 前端框架 | Vue 3 (Composition API) |
-| UI 图标 | Font Awesome 6 |
-| Excel 解析 | XLSX.js |
-| 桌面打包 | Electron |
-| 移动打包 | HBuilderX 5+ |
-| 样式方案 | 原生 CSS + CSS 变量 + 深色模式 |
-| 数据存储 | localStorage + URL 参数同步 |
+*   **Web 在线版**：直接访问部署地址，无需安装。
+*   **Android APK**：完美支持移动端 Excel 导入与 PK 模式。
+*   **桌面原生应用**：Windows/macOS/Linux 安装包。
 
----
+📢 **下载地址**：[GitHub Releases](https://github.com/HerryABU/student-number-picker)
 
-## 🤝 九、开源与协作
+**更新追随** :  [CSDN](https://blog.csdn.net/Herryfyh)
 
-本项目完全开源，欢迎所有人参与！
-
-| 角色 | 可以做什么 |
-| :--- | :--- |
-| **开发者** | 提交 PR、修复 Bug、添加新功能 |
-| **设计师** | 优化 UI/UX，改进交互动画 |
-| **测试者** | 在不同平台上测试，反馈问题 |
-| **文档贡献者** | 完善使用说明、翻译文档 |
-| **苹果生态开发者** | 帮助完成 iOS/iPadOS 适配 🙏 |
-
-> 📦 **GitHub 仓库**：[https://github.com/HerryABU/student-number-picker](https://github.com/HerryABU/student-number-picker)
+⭐ **如果这个工具对你有帮助，欢迎 Star、分享！**
 
 ---
 
-## 🔮 十、未来展望
-
-V5.9.3 是一个阶段的里程碑，但不是终点。未来我们计划加入：
-
-- [ ] **语音播报**：抽取时自动读出学号/姓名
-- [ ] **云端备份**：将分组数据同步到云端，跨设备使用
-- [ ] **统计看板**：展示每个学生的被抽中次数和趋势图
-- [ ] **音效支持**：为“惊心动魄”模式配上紧张的音效
-- [ ] **导出功能**：将抽取结果导出为 Excel 或 PDF
-- [ ] **iOS 版本**：期待社区贡献 🙏
-
----
-
-## 💬 十一、结语
-
-从 V5.7.3 的功能爆发，到 V5.8.2 的“惊心动魄模式”，再到今天的 V5.9.3 全平台覆盖，智能学号抽取系统一步步走来，始终秉持一个理念：
-
-> **让课堂互动更公平、更有趣、更简单。**
-
-现在，无论你用的是 Windows 电脑、Mac 电脑、Linux 电脑，还是 Android 手机、鸿蒙手机，甚至只是一个浏览器——智能学号抽取系统都能为你提供流畅、一致、完整的体验。
-
-**一次开发，多端交付。一套代码，全场景覆盖。**
-
-这就是 V5.9.3。
-
----
-
-> 📢 **如果这个工具对你有帮助，欢迎 Star、分享、或者参与贡献！**
-
-**项目主页**：[https://github.com/HerryABU/student-number-picker](https://github.com/HerryABU/student-number-picker)  
-**作者 CSDN**：[https://blog.csdn.net/Herryfyh](https://blog.csdn.net/Herryfyh)
-
----
-
-**© 2025 Herryfyh | 智能学号抽取系统 V5.9.3**  
-*让每一次点名，都成为课堂的高光时刻。*
-
+*© 2026 Herryfyh | 智能学号抽取系统 V6.0.0*
