@@ -1,0 +1,22 @@
+/* ==================== 响应式样式 ==================== */
+@media (max-width: 768px) {
+  .main-card { padding: var(--space-4); }
+  :root { --name-size: 3rem; --number-size: 50pt; }
+  .mode-switch-container { flex-direction: column; align-items: center; }
+  .mode-card { max-width: 100%; width: 100%; }
+  .form-group { flex-direction: column; align-items: center; }
+  .form-label { min-width: auto; text-align: center; }
+  .form-control { max-width: 100%; width: 100%; }
+  .range-input-row { flex-direction: column; align-items: center; }
+  .range-input-row label { text-align: center; min-width: auto; }
+  .range-input-row input { width: 100%; max-width: 250px; }
+  .btn-group { flex-direction: column; }
+  .btn { width: 100%; }
+  .fullscreen-number { font-size: 100px; }
+  .fullscreen-name { font-size: 50px; }
+  .fullscreen-chip-id { font-size: 28px; }
+  .fullscreen-chip-name { font-size: 18px; }
+  .share-btn { right: 70px; }
+  .pk-results-container { flex-direction: column; align-items: center; }
+  .pk-side { max-width: 100%; }
+}

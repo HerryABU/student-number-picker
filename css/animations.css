@@ -1,0 +1,44 @@
+/* ==================== 动画样式 ==================== */
+.anim-flip { animation: flipAnimation 0.6s ease-in-out; }
+.anim-pop { animation: popAnimation 0.5s var(--transition-bounce); }
+.anim-slide { animation: slideAnimation 0.5s ease-out; }
+
+@keyframes flipAnimation {
+  0% { transform: perspective(400px) rotateX(0); opacity: 1; }
+  40% { transform: perspective(400px) rotateX(90deg); opacity: 0; }
+  60% { transform: perspective(400px) rotateX(-90deg); opacity: 0; }
+  100% { transform: perspective(400px) rotateX(0); opacity: 1; }
+}
+@keyframes popAnimation { 0% { transform: scale(0.3); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes slideAnimation { 0% { transform: translateX(-100%) rotate(-10deg); opacity: 0; } 100% { transform: translateX(0) rotate(0); opacity: 1; } }
+
+.multi-results { margin-top: var(--space-5); display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: center; max-height: 200px; overflow-y: auto; padding: var(--space-3); }
+.result-chip { background: linear-gradient(135deg, rgba(67,97,238,0.15), rgba(67,97,238,0.08)); padding: var(--space-2) var(--space-5); border-radius: var(--radius-full); font-weight: 600; border: 1px solid rgba(67,97,238,0.2); color: var(--text-primary); transition: all var(--transition-fast); animation: chipAppear 0.3s ease-out; }
+@keyframes chipAppear { 0% { opacity: 0; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes historyAppear { 0% { opacity: 0; transform: translateX(-10px); } 100% { opacity: 1; transform: translateX(0); } }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes modalSlide { 0% { transform: scale(0.8) translateY(-20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+
+.fullscreen-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-secondary); z-index: var(--z-fullscreen); display: flex; flex-direction: column; align-items: center; justify-content: center; animation: overlayFade 0.3s ease-out; }
+.dark-mode .fullscreen-overlay { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+.fullscreen-overlay::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 50% 50%, rgba(67,97,238,0.05) 0%, transparent 70%); pointer-events: none; }
+@keyframes overlayFade { 0% { opacity: 0; } 100% { opacity: 1; } }
+.fullscreen-main { text-align: center; position: relative; z-index: 1; }
+.fullscreen-number { font-size: 180px; font-weight: 900; background: linear-gradient(135deg, var(--primary-color), var(--success-color), var(--warning-color)); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 80px var(--primary-color); animation: numberGlow 1.5s ease-in-out infinite alternate; font-family: var(--font-mono); }
+.fullscreen-name { font-size: 80px; font-weight: 700; background: linear-gradient(135deg, var(--success-color), var(--primary-color)); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 50px var(--success-color); margin-top: var(--space-4); }
+@keyframes numberGlow { 0% { transform: scale(1); filter: brightness(1); } 100% { transform: scale(1.05); filter: brightness(1.2); } }
+.fullscreen-results { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-5); margin-top: var(--space-8); max-width: 80%; max-height: 300px; overflow-y: auto; padding: var(--space-5); position: relative; z-index: 1; }
+.fullscreen-chip { background: var(--bg-tertiary); backdrop-filter: blur(10px); padding: var(--space-4) var(--space-8); border-radius: var(--radius-xl); border: 1px solid var(--border-light); animation: chipFloat 0.5s ease-out forwards; opacity: 0; box-shadow: var(--shadow-lg); }
+.dark-mode .fullscreen-chip { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+.fullscreen-chip:hover { transform: scale(1.05) translateY(-4px); border-color: var(--primary-color); box-shadow: var(--shadow-xl); }
+@keyframes chipFloat { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
+.fullscreen-chip-id { font-size: 36px; font-weight: 700; color: var(--primary-color); }
+.fullscreen-chip-name { font-size: 24px; font-weight: 600; color: var(--success-color); margin-top: 4px; }
+.close-fullscreen { position: absolute; bottom: var(--space-10); color: var(--text-tertiary); font-size: var(--font-size-sm); cursor: pointer; transition: color var(--transition-fast); z-index: 1; }
+.close-fullscreen:hover { color: var(--primary-color); }
+
+.celebration-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: var(--z-celebration); overflow: hidden; }
+.confetti { position: absolute; width: 12px; height: 12px; top: -20px; opacity: 0.8; will-change: transform; animation: confettiFall linear forwards; }
+@keyframes confettiFall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+.celebration-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-elevated); padding: var(--space-6) var(--space-10); border-radius: var(--radius-2xl); box-shadow: var(--shadow-2xl); z-index: calc(var(--z-celebration) + 1); font-size: var(--font-size-3xl); font-weight: 700; background: linear-gradient(135deg, var(--danger-color), var(--warning-color)); -webkit-background-clip: text; background-clip: text; color: transparent; text-align: center; border: 2px solid var(--danger-color); animation: messagePop 0.5s var(--transition-bounce); pointer-events: none; }
+@keyframes messagePop { 0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }

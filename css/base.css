@@ -1,0 +1,35 @@
+/* ==================== 基础样式 ==================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-tertiary); border-radius: var(--radius-full); }
+::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: var(--radius-full); }
+
+.empty-state { text-align: center; padding: var(--space-10); color: var(--text-tertiary); }
+.empty-state i { font-size: 64px; margin-bottom: var(--space-4); opacity: 0.5; }
+
+.info-card {
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  background: linear-gradient(135deg, rgba(67, 97, 238, 0.08), rgba(6, 214, 160, 0.05));
+  border-radius: var(--radius-lg);
+  border-left: 4px solid var(--primary-color);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
